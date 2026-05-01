@@ -767,6 +767,36 @@ canvas {
   line-height: 1.55;
 }
 
+.official-rules-card {
+  border-left: 5px solid var(--accent);
+}
+
+.rule-links {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.rule-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: 8px;
+  background: #e9edf2;
+  color: var(--ink);
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.rule-links a:focus-visible,
+.rule-links a:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
 .plan-card,
 .day-card,
 .history-item {
