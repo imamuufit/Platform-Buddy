@@ -323,6 +323,7 @@ const els = {
   noteInput: document.querySelector("#noteInput"),
   quickStats: document.querySelector("#quickStats"),
   metricGrid: document.querySelector("#metricGrid"),
+  academyEvaluation: document.querySelector("#academyEvaluation"),
   historyList: document.querySelector("#historyList"),
   planList: document.querySelector("#planList"),
   trendChart: document.querySelector("#trendChart"),
@@ -529,6 +530,7 @@ function render() {
   renderAthletes();
   renderStats();
   renderMetrics();
+  renderAcademyEvaluation();
   renderChartOptions();
   renderDataStatus();
   renderHistory();
@@ -676,6 +678,130 @@ function renderMetrics() {
 
 function metric(label, value) {
   return `<article class="stat-card"><span>${label}</span><strong>${value}</strong></article>`;
+}
+
+function renderAcademyEvaluation() {
+  const cards = academyEvaluations(currentAthlete(), normalizedCycle()).slice(0, 3);
+  els.academyEvaluation.innerHTML = cards.map((card) => `
+    <article class="academy-evaluation-card ${card.status}">
+      <span>${escapeHtml(card.label)}</span>
+      <h3>${escapeHtml(card.title)}</h3>
+      <p>${escapeHtml(card.message)}</p>
+    </article>
+  `).join("");
+}
+
+function academyEvaluations(athlete, cycle) {
+  const logs = athlete.logs || [];
+  if (!logs.length) {
+    return [{
+      status: "info",
+      label: "記録",
+      title: "まずは記録を増やしましょう",
+      message: "分析の精度は記録量に左右されます。まずはBIG3と主要補助種目を、RPEつきで残していきましょう。"
+    }];
+  }
+
+  const last7 = logs.filter((log) => daysAgo(log.date) >= 0 && daysAgo(log.date) <= 6);
+  const prev7 = logs.filter((log) => daysAgo(log.date) >= 7 && daysAgo(log.date) <= 13);
+  const rpeLogs = last7.filter((log) => log.rpe);
+  const avgRpe = rpeLogs.reduce((sum, log) => sum + Number(log.rpe), 0) / (rpeLogs.length || 1);
+  const recentRpeIssue = plannedRpeIssue(logs);
+  const lastVolume = last7.reduce((sum, log) => sum + volume(log), 0);
+  const prevVolume = prev7.reduce((sum, log) => sum + volume(log), 0);
+  const balance = liftBalance(cycle, athlete);
+  const cards = [];
+
+  if (recentRpeIssue && recentRpeIssue.diff >= 1.5) {
+    cards.push({
+      status: "danger",
+      label: "疲労注意",
+      title: "予定RPEより高く出ています",
+      message: `直近の${recentRpeIssue.name}で予定@${recentRpeIssue.planned}に対して実績@${recentRpeIssue.actual}でした。回復が追いついていない可能性があります。次回は提案重量より-2.5〜5kg下げ、予定RPEを優先しましょう。`
+    });
+  } else if (recentRpeIssue && recentRpeIssue.diff >= 0.75) {
+    cards.push({
+      status: "warn",
+      label: "RPE管理",
+      title: "やや重く感じています",
+      message: `直近の${recentRpeIssue.name}で予定よりRPEが高めです。重量を追いすぎず、次回は-2.5kg程度の調整も選択肢に入れましょう。`
+    });
+  } else if (rpeLogs.length >= 2 && avgRpe >= 8.5) {
+    cards.push({
+      status: "warn",
+      label: "疲労管理",
+      title: "平均RPEが高めです",
+      message: `直近7日の平均RPEは${avgRpe.toFixed(1)}です。高RPEが続く時は、トップセットよりバックオフの質とフォーム再現性を優先しましょう。`
+    });
+  } else if (rpeLogs.length >= 2 && avgRpe <= 6.5) {
+    cards.push({
+      status: "info",
+      label: "強度",
+      title: "余力が多めです",
+      message: `直近7日の平均RPEは${avgRpe.toFixed(1)}です。フォームが安定しているなら、次回は+2.5kg程度の小さな上積みを検討できます。`
+    });
+  } else {
+    cards.push({
+      status: "ok",
+      label: "RPE管理",
+      title: "堅実に進められています",
+      message: "直近のRPEは極端に高すぎず低すぎない範囲です。表示重量より予定RPEを守ることを優先して継続しましょう。"
+    });
+  }
+
+  if (prevVolume > 0 && lastVolume > prevVolume * 1.35) {
+    cards.push({
+      status: "warn",
+      label: "ボリューム",
+      title: "練習量が急に増えています",
+      message: "直近7日のボリュームが前週より大きく増えています。疲労が遅れて出ることがあるため、次回はRPEとフォームの乱れを優先して確認しましょう。"
+    });
+  } else if (prevVolume > 0 && lastVolume < prevVolume * 0.65) {
+    cards.push({
+      status: "info",
+      label: "ボリューム",
+      title: "練習量が少なめです",
+      message: "直近7日のボリュームが前週より少なめです。忙しさや疲労が理由なら問題ありませんが、伸ばしたい種目は最低限の練習量を確保しましょう。"
+    });
+  }
+
+  if (balance && balance.recommended && cycle.planTarget !== "bench_only") {
+    cards.push({
+      status: "info",
+      label: "BIG3バランス",
+      title: `${mainLiftNames[balance.recommended]}が重点候補です`,
+      message: `現在のBIG3バランスでは${mainLiftNames[balance.recommended]}が相対的に低めです。次サイクルで重点種目に迷う場合の候補になります。`
+    });
+  }
+
+  if (last7.length < 2) {
+    cards.push({
+      status: "info",
+      label: "記録習慣",
+      title: "直近の記録が少なめです",
+      message: "分析は記録が増えるほど役に立ちます。完璧に残すより、まずは主要セットだけでも継続して記録しましょう。"
+    });
+  }
+
+  return cards;
+}
+
+function plannedRpeIssue(logs) {
+  return [...logs]
+    .filter((log) => daysAgo(log.date) >= 0 && daysAgo(log.date) <= 14 && log.rpe && log.note)
+    .map((log) => {
+      const planned = Number((String(log.note).match(/予定RPE\s*([\d.]+)/) || [])[1] || "");
+      return planned ? {
+        name: log.exerciseName || exerciseMeta(log.exerciseId).name,
+        planned,
+        actual: Number(log.rpe),
+        diff: Number(log.rpe) - planned,
+        date: log.date
+      } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .find((item) => item.diff >= 0.75);
 }
 
 function daysAgo(dateString) {

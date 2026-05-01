@@ -1,4 +1,4 @@
-const CACHE_NAME = "total-academy-v26";
+const CACHE_NAME = "total-academy-v27";
 const ASSETS = [
   "./",
   "index.html",

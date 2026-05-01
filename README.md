@@ -11,6 +11,7 @@
 - 重量、回数、セット、RPE、メモの保存
 - 必要な時だけセットごとの重量・回数・RPEを詳細記録
 - 種目別e1RM、直近ボリューム、平均RPEの分析
+- RPE、ボリューム、BIG3バランスに基づく「アカデミーからの評価」
 - BIG3 / ベンチプレスのみのプラン対象選択
 - トータルアカデミー式、HPS、5/3/1、Smolov Jr.の簡略テンプレート選択
 - 週数、頻度、補助種目量、重点種目のカスタム
@@ -59,3 +60,9 @@ iPhoneでの追加手順:
 - 予測PRは、現在1RM、サイクル長、週頻度、種目別の伸びやすさを使った保守的なレンジです。
 - 週頻度は単純な加点ではなく、重量を分散しやすい利点と疲労管理の難しさを両方見ます。
 - HPS、5/3/1、Smolov Jr.は各メソッドの考え方を参考にした簡略テンプレートです。公式プログラムの完全再現、公式提携、公式承認を示すものではありません。
+
+## 分析コメントの考え方
+
+- アカデミー評価は診断ではなく、RPE、直近ボリューム、記録頻度、BIG3バランスから次の練習判断を助けるための目安です。
+- RPEが予定より高い場合は、疲労、回復、技術の乱れなど複数の要因が考えられるため、重量より予定RPEを守ることを優先するコメントにしています。
+- 参考: Helms et al. 2018 "RPE vs. Percentage 1RM Loading in Periodized Programs"; Helms et al. 2018 "Rating of Perceived Exertion as a Method of Volume Autoregulation"; Helms et al. 2020 "Methods for Regulating and Monitoring Resistance Training".

@@ -537,6 +537,78 @@ textarea {
   font-weight: 700;
 }
 
+.academy-evaluation-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.academy-evaluation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.academy-evaluation-card {
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--coach);
+  border-radius: 8px;
+  background: var(--paper);
+  padding: 12px;
+}
+
+.academy-evaluation-card span {
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.academy-evaluation-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.academy-evaluation-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.academy-evaluation-card.ok {
+  border-left-color: var(--green);
+}
+
+.academy-evaluation-card.ok span {
+  color: var(--green);
+}
+
+.academy-evaluation-card.info {
+  border-left-color: var(--blue);
+}
+
+.academy-evaluation-card.info span {
+  color: var(--blue);
+}
+
+.academy-evaluation-card.warn {
+  border-left-color: #b7791f;
+  background: #fff9e8;
+}
+
+.academy-evaluation-card.warn span {
+  color: #8a5a00;
+}
+
+.academy-evaluation-card.danger {
+  border-left-color: var(--accent);
+  background: #fff1f0;
+}
+
+.academy-evaluation-card.danger span {
+  color: var(--accent);
+}
+
 .cycle-note {
   margin: -4px 0 14px;
   color: var(--muted);
