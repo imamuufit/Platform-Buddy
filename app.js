@@ -951,11 +951,11 @@ function activePlanLiftIds(cycle = normalizedCycle()) {
 function programMethodInfo(cycle = normalizedCycle()) {
   const target = cycle.planTarget === "bench_only" ? "ベンチプレスのみ" : "BIG3";
   const info = {
-    platform: ["トータルアカデミー式（おすすめ）", "迷ったらこれ。性別、階級、重点種目、設備環境に合わせつつ、忙しさに応じて週3〜5回と補助量を調整できます。RPEを練習しながらPRを狙う、このアプリの標準プランです。"],
+    platform: ["Buddy式（おすすめ）", "迷ったらこれ。性別、階級、重点種目、設備環境に合わせつつ、忙しさに応じて週3〜5回と補助量を調整できます。RPEを練習しながらMAX更新と大会挑戦を狙う、このアプリの標準プランです。"],
     hps: ["HPS（BP向き）", "Hypertrophy → Power → Strength のDUP型。特にベンチ強化との相性が良い方式です。"],
     "531": ["5/3/1（長期型）", "Training Maxを使って堅実に積む長期型。AMRAPは余力を残して止めます。"],
     smolov_jr: ["Smolov Jr.（SQ/BP高負荷）", "3週・週4固定の短期集中高ボリューム方式。SQ/BP向けで、DLには適用しません。補助種目は最小限にします。"]
-  }[cycle.programMethod] || ["トータルアカデミー", ""];
+  }[cycle.programMethod] || ["Platform Buddy", ""];
   return { label: `${info[0]} / ${target}`, note: info[1] };
 }
 
@@ -1073,7 +1073,7 @@ function methodControlNote(cycle) {
 
 function programDisclaimerText(cycle) {
   if (cycle.programMethod === "platform") return "";
-  return "注記: HPS、5/3/1、Smolov Jr.は各メソッドの考え方を参考にしたトータルアカデミー用の簡略テンプレートです。公式プログラムの完全再現、公式提携、公式承認を示すものではありません。";
+  return "注記: HPS、5/3/1、Smolov Jr.は各メソッドの考え方を参考にしたPlatform Buddy用の簡略テンプレートです。公式プログラムの完全再現、公式提携、公式承認を示すものではありません。";
 }
 
 function renderFacilityOptions(cycle) {
@@ -1795,8 +1795,8 @@ function setDetailsText(log) {
 
 function backupPayload() {
   return {
-    app: "トータルアカデミー",
-    type: "total-academy-backup",
+    app: "Platform Buddy",
+    type: "platform-buddy-backup",
     version: 1,
     exportedAt: new Date().toISOString(),
     storageKey: STORAGE_KEY,
@@ -1806,13 +1806,13 @@ function backupPayload() {
 
 function exportBackup() {
   const blob = new Blob([JSON.stringify(backupPayload(), null, 2)], { type: "application/json;charset=utf-8" });
-  downloadBlob(blob, `total-academy-backup-${today()}.json`);
+  downloadBlob(blob, `platform-buddy-backup-${today()}.json`);
 }
 
 function normalizeBackupPayload(payload) {
   if (!payload || typeof payload !== "object") throw new Error("バックアップファイルを読み込めませんでした。");
-  const rawState = payload.type === "total-academy-backup" ? payload.state : payload;
-  if (!rawState || !Array.isArray(rawState.athletes)) throw new Error("トータルアカデミーのバックアップではない可能性があります。");
+  const rawState = ["platform-buddy-backup", "total-academy-backup"].includes(payload.type) ? payload.state : payload;
+  if (!rawState || !Array.isArray(rawState.athletes)) throw new Error("Platform Buddyのバックアップではない可能性があります。");
   const migrated = migrateState(rawState);
   if (!Array.isArray(migrated.athletes) || !migrated.athletes.length) throw new Error("選手データが見つかりませんでした。");
   if (!migrated.currentAthleteId || !migrated.athletes.some((athlete) => athlete.id === migrated.currentAthleteId)) {
@@ -2135,7 +2135,7 @@ function workbookSheets() {
     return [mainLiftNames[liftId], max || "-", `${range.low}〜${range.high}`];
   });
   const summary = [
-    [cell("トータルアカデミー プラン概要", 1), "", "", ""],
+    [cell("Platform Buddy プラン概要", 1), "", "", ""],
     [cell("選手", 7), cell(athlete.name, 8), cell("現在週", 7), cell(`${cycle.week}週目 / ${phase.name}`, 8)],
     [cell("性別", 7), cell(athlete.sex === "female" ? "女性" : "男性", 8), cell("階級", 7), cell(classLabel, 8)],
     [cell("体重", 7), cell(athlete.bodyweight ? `${athlete.bodyweight}kg` : "-", 8), cell("対象", 7), cell(cycle.planTarget === "bench_only" ? "ベンチプレスのみ" : "BIG3", 8)],
@@ -2215,7 +2215,7 @@ function weekSheetRows(cycle, week) {
 function exportPlanWorkbook() {
   const sheets = workbookSheets();
   const blob = createXlsxBlob(sheets);
-  downloadBlob(blob, `total-academy-plan-${today()}.xlsx`);
+  downloadBlob(blob, `platform-buddy-plan-${today()}.xlsx`);
 }
 
 function exportLogWorkbook() {
@@ -2223,7 +2223,7 @@ function exportLogWorkbook() {
   const blob = createXlsxBlob([
     { name: "Log", rows: styledLogRows(athlete), widths: [16, 10, 12, 13, 18, 28, 10, 10, 10, 10, 10, 42], freeze: 1, filter: "A1:L1" }
   ]);
-  downloadBlob(blob, `total-academy-log-${today()}.xlsx`);
+  downloadBlob(blob, `platform-buddy-log-${today()}.xlsx`);
 }
 
 function downloadBlob(blob, filename) {
