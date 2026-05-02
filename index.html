@@ -108,33 +108,21 @@
 
             <section id="alternativePanel" class="alternative-panel hidden" aria-live="polite"></section>
 
-            <div class="input-grid">
-              <label>
-                重量 kg
-                <input id="weightInput" inputmode="decimal" type="number" min="0" step="0.5" required>
-              </label>
-              <label>
-                回数
-                <input id="repsInput" inputmode="numeric" type="number" min="1" step="1" required>
-              </label>
-              <label>
-                セット
-                <input id="setsInput" inputmode="numeric" type="number" min="1" step="1" value="1" required>
-              </label>
-              <label>
-                RPE
-                <input id="rpeInput" inputmode="decimal" type="number" min="5" max="10" step="0.5" placeholder="8">
-              </label>
-            </div>
+            <label class="set-count-label">
+              セット数
+              <input id="setsInput" inputmode="numeric" type="number" min="1" max="20" step="1" value="1" required>
+            </label>
 
-            <details class="set-detail-panel" id="setDetailPanel">
-              <summary>セットごとに重量・RPEを変える</summary>
-              <div class="set-detail-body">
-                <p>閉じたまま記録すると、上の重量・回数・セット数で同じ内容の複数セットとして保存します。セットごとに変えたい時だけ開きます。</p>
-                <div class="set-rows" id="setRows"></div>
-                <button class="text-button compact" id="fillSetRowsBtn" type="button">同じ内容でセットを作成</button>
+            <section class="set-detail-panel" id="setDetailPanel">
+              <div class="set-detail-head">
+                <div>
+                  <h3>セット入力</h3>
+                  <p>Set1を入力してコピーすると、同じ内容を下のセットへ反映できます。</p>
+                </div>
+                <button class="text-button compact" id="fillSetRowsBtn" type="button">Set1を下へコピー</button>
               </div>
-            </details>
+              <div class="set-rows" id="setRows"></div>
+            </section>
 
             <label>
               メモ

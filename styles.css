@@ -504,25 +504,28 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--paper);
-  padding: 0;
-}
-
-.set-detail-panel summary {
-  cursor: pointer;
-  color: var(--ink);
-  font-size: 0.86rem;
-  font-weight: 900;
   padding: 12px;
 }
 
-.set-detail-body {
-  display: grid;
+.set-count-label {
+  max-width: 220px;
+}
+
+.set-detail-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
   gap: 10px;
-  border-top: 1px solid var(--line);
-  padding: 12px;
+  margin-bottom: 10px;
 }
 
-.set-detail-body p {
+.set-detail-head h3 {
+  margin: 0 0 4px;
+  font-size: 0.98rem;
+}
+
+.set-detail-head p {
+  margin: 0;
   color: var(--muted);
   font-size: 0.8rem;
   font-weight: 800;
@@ -1193,6 +1196,10 @@ dialog::backdrop {
   .set-row {
     grid-template-columns: 42px repeat(3, minmax(0, 1fr));
     gap: 6px;
+  }
+
+  .set-detail-head {
+    display: grid;
   }
 
   .actual-save {

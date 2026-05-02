@@ -327,10 +327,7 @@ const els = {
   customExerciseLabel: document.querySelector("#customExerciseLabel"),
   customExerciseInput: document.querySelector("#customExerciseInput"),
   alternativePanel: document.querySelector("#alternativePanel"),
-  weightInput: document.querySelector("#weightInput"),
-  repsInput: document.querySelector("#repsInput"),
   setsInput: document.querySelector("#setsInput"),
-  rpeInput: document.querySelector("#rpeInput"),
   setDetailPanel: document.querySelector("#setDetailPanel"),
   setRows: document.querySelector("#setRows"),
   fillSetRowsBtn: document.querySelector("#fillSetRowsBtn"),
@@ -1842,18 +1839,20 @@ function escapeHtml(value) {
   }[char]));
 }
 
-function renderSetRows(prefill = false) {
+function renderSetRows(copyFirst = false) {
   const count = Math.max(1, Math.min(20, Number(els.setsInput.value || 1)));
   const existing = Array.from(els.setRows.querySelectorAll(".set-row")).map((row) => ({
     weight: row.querySelector(".set-weight").value,
     reps: row.querySelector(".set-reps").value,
     rpe: row.querySelector(".set-rpe").value
   }));
+  const first = existing[0] || {};
   els.setRows.innerHTML = Array.from({ length: count }, (_, index) => {
     const previous = existing[index] || {};
-    const weight = prefill ? els.weightInput.value : previous.weight || els.weightInput.value;
-    const reps = prefill ? els.repsInput.value : previous.reps || els.repsInput.value;
-    const rpe = prefill ? els.rpeInput.value : previous.rpe || els.rpeInput.value;
+    const source = copyFirst && index > 0 ? first : previous;
+    const weight = source.weight || "";
+    const reps = source.reps || "";
+    const rpe = source.rpe || "";
     return `
       <div class="set-row">
         <strong>Set ${index + 1}</strong>
@@ -1866,8 +1865,7 @@ function renderSetRows(prefill = false) {
 }
 
 function collectSetDetails() {
-  if (!els.setDetailPanel.open) return aggregateSetDetails();
-  const detailedSets = Array.from(els.setRows.querySelectorAll(".set-row"))
+  return Array.from(els.setRows.querySelectorAll(".set-row"))
     .map((row, index) => ({
       set: index + 1,
       weight: Number(row.querySelector(".set-weight").value),
@@ -1875,21 +1873,6 @@ function collectSetDetails() {
       rpe: row.querySelector(".set-rpe").value ? Number(row.querySelector(".set-rpe").value) : ""
     }))
     .filter((set) => set.weight && set.reps);
-  return detailedSets.length ? detailedSets : aggregateSetDetails();
-}
-
-function aggregateSetDetails() {
-  const count = Math.max(1, Math.min(20, Number(els.setsInput.value || 1)));
-  const weight = Number(els.weightInput.value);
-  const reps = Number(els.repsInput.value);
-  const rpe = els.rpeInput.value ? Number(els.rpeInput.value) : "";
-  if (!weight || !reps) return [];
-  return Array.from({ length: count }, (_, index) => ({
-    set: index + 1,
-    weight,
-    reps,
-    rpe
-  }));
 }
 
 function setDetailsText(log) {
@@ -1978,11 +1961,8 @@ document.querySelectorAll(".tab").forEach((tab) => {
 
 els.categorySelect.addEventListener("change", renderExerciseOptions);
 els.exerciseSelect.addEventListener("change", updateCustomExerciseVisibility);
-els.setDetailPanel.addEventListener("toggle", () => {
-  if (els.setDetailPanel.open && !els.setRows.children.length) renderSetRows(true);
-});
 els.setsInput.addEventListener("change", () => {
-  if (els.setDetailPanel.open) renderSetRows();
+  renderSetRows();
 });
 els.fillSetRowsBtn.addEventListener("click", () => renderSetRows(true));
 els.alternativePanel.addEventListener("click", (event) => {
@@ -2060,6 +2040,12 @@ els.logForm.addEventListener("submit", (event) => {
   const meta = exerciseMeta(exerciseId);
   const exerciseName = exerciseId === "custom" ? els.customExerciseInput.value.trim() : meta.name;
   const setDetails = collectSetDetails();
+  if (!setDetails.length) {
+    alert("少なくとも1セット分の重量と回数を入力してください。");
+    return;
+  }
+  const topSet = setDetails.reduce((best, set) => e1rm(set.weight, set.reps) > e1rm(best.weight, best.reps) ? set : best, setDetails[0]);
+  const lastRpe = [...setDetails].reverse().find((set) => set.rpe)?.rpe || "";
   athlete.logs.push({
     id: crypto.randomUUID(),
     date: els.dateInput.value,
@@ -2067,10 +2053,10 @@ els.logForm.addEventListener("submit", (event) => {
     exerciseId,
     exerciseName,
     badge: exerciseId === "custom" ? "自由" : meta.badge,
-    weight: Number(els.weightInput.value),
-    reps: Number(els.repsInput.value),
-    sets: Number(els.setsInput.value),
-    rpe: els.rpeInput.value ? Number(els.rpeInput.value) : "",
+    weight: topSet.weight,
+    reps: topSet.reps,
+    sets: setDetails.length,
+    rpe: lastRpe,
     setDetails,
     note: els.noteInput.value.trim()
   });
@@ -2078,8 +2064,7 @@ els.logForm.addEventListener("submit", (event) => {
   els.logForm.reset();
   els.dateInput.value = today();
   els.setsInput.value = "1";
-  els.setDetailPanel.open = false;
-  els.setRows.innerHTML = "";
+  renderSetRows();
   renderExerciseOptions();
   render();
 });
@@ -2549,4 +2534,5 @@ if ("serviceWorker" in navigator) {
 
 renderExerciseControls();
 els.dateInput.value = today();
+renderSetRows();
 render();
