@@ -341,7 +341,6 @@ const els = {
   chartLiftSelect: document.querySelector("#chartLiftSelect"),
   planTargetInput: document.querySelector("#planTargetInput"),
   programMethodInput: document.querySelector("#programMethodInput"),
-  buddyLevelInput: document.querySelector("#buddyLevelInput"),
   cycleLengthInput: document.querySelector("#cycleLengthInput"),
   daysPerWeekInput: document.querySelector("#daysPerWeekInput"),
   accessoryVolumeInput: document.querySelector("#accessoryVolumeInput"),
@@ -1053,8 +1052,7 @@ function planInsight(cycle) {
 function renderCycleInputs() {
   const cycle = normalizedCycle();
   els.planTargetInput.value = cycle.planTarget;
-  els.programMethodInput.value = cycle.programMethod;
-  els.buddyLevelInput.value = cycle.buddyLevel;
+  els.programMethodInput.value = programMethodSelectValue(cycle);
   updateCycleOptionControls(cycle);
   els.cycleLengthInput.value = String(cycle.length);
   els.daysPerWeekInput.value = String(cycle.daysPerWeek);
@@ -1081,7 +1079,28 @@ function updateCycleOptionControls(cycle) {
   els.cycleLengthInput.disabled = defaults.locked.includes("length");
   els.daysPerWeekInput.disabled = defaults.locked.includes("daysPerWeek");
   els.accessoryVolumeInput.disabled = defaults.locked.includes("accessoryVolume");
-  els.buddyLevelInput.disabled = cycle.programMethod !== "platform";
+}
+
+function programMethodSelectValue(cycle) {
+  if (cycle.programMethod === "platform") {
+    return cycle.buddyLevel === "level2" ? "platform_level2" : "platform_level1";
+  }
+  return cycle.programMethod;
+}
+
+function applyProgramMethodSelectValue(cycle, value) {
+  if (value === "platform_level2") {
+    cycle.programMethod = "platform";
+    cycle.buddyLevel = "level2";
+    return;
+  }
+  if (value === "platform_level1" || value === "platform") {
+    cycle.programMethod = "platform";
+    cycle.buddyLevel = "level1";
+    return;
+  }
+  cycle.programMethod = value;
+  cycle.buddyLevel = "level1";
 }
 
 function methodControlNote(cycle) {
@@ -1147,8 +1166,7 @@ function updateCycleFromInputs() {
   cycle.length = Number(els.cycleLengthInput.value);
   cycle.daysPerWeek = Number(els.daysPerWeekInput.value);
   cycle.planTarget = els.planTargetInput.value;
-  cycle.programMethod = els.programMethodInput.value;
-  cycle.buddyLevel = els.buddyLevelInput.value;
+  applyProgramMethodSelectValue(cycle, els.programMethodInput.value);
   cycle.accessoryVolume = els.accessoryVolumeInput.value;
   cycle.priorityLift = els.priorityLiftInput.value;
   cycle.experienceLevel = els.experienceLevelInput.value;
@@ -2316,7 +2334,6 @@ document.querySelector("#nextWeekBtn").addEventListener("click", () => {
 [
   els.planTargetInput,
   els.programMethodInput,
-  els.buddyLevelInput,
   els.cycleLengthInput,
   els.daysPerWeekInput,
   els.accessoryVolumeInput,
