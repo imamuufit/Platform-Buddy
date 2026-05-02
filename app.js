@@ -287,6 +287,7 @@ const prefectures = [
 
 const defaultState = {
   currentAthleteId: "me",
+  guideMode: true,
   athletes: [
     {
       id: "me",
@@ -361,6 +362,7 @@ const els = {
   backupImportBtn: document.querySelector("#backupImportBtn"),
   backupFileInput: document.querySelector("#backupFileInput"),
   dataStatus: document.querySelector("#dataStatus"),
+  guideModeBtn: document.querySelector("#guideModeBtn"),
   deleteAthleteBtn: document.querySelector("#deleteAthleteBtn"),
   athleteDialog: document.querySelector("#athleteDialog"),
   athleteForm: document.querySelector("#athleteForm"),
@@ -418,6 +420,7 @@ function loadState() {
 
 function migrateState(rawState) {
   const migrated = rawState;
+  migrated.guideMode = typeof migrated.guideMode === "boolean" ? migrated.guideMode : true;
   migrated.athletes = (migrated.athletes || []).map((athlete) => ({
     ...athlete,
     sex: ["male", "female"].includes(athlete.sex) ? athlete.sex : "male",
@@ -535,8 +538,23 @@ function sortedLogs(athlete = currentAthlete()) {
   return [...athlete.logs].sort((a, b) => b.date.localeCompare(a.date));
 }
 
+function guideEnabled() {
+  return state.guideMode !== false;
+}
+
+function renderGuideMode() {
+  const enabled = guideEnabled();
+  document.body.classList.toggle("guide-off", !enabled);
+  if (els.guideModeBtn) {
+    els.guideModeBtn.textContent = enabled ? "ガイドON" : "スッキリ";
+    els.guideModeBtn.setAttribute("aria-pressed", String(enabled));
+    els.guideModeBtn.title = enabled ? "説明を表示中" : "説明を省略中";
+  }
+}
+
 function render() {
   const athlete = currentAthlete();
+  renderGuideMode();
   els.currentAthleteName.textContent = athlete.name;
   els.deleteAthleteBtn.disabled = state.athletes.length <= 1;
   els.deleteAthleteBtn.title = state.athletes.length <= 1 ? "選手が1名のみのため削除できません" : `${athlete.name}を削除`;
@@ -905,7 +923,7 @@ function renderPlan() {
   const phase = cyclePhase(cycle.week, cycle.length, cycle.programMethod);
   const levelLabel = cycle.programMethod === "platform" ? ` / ${cycle.buddyLevel === "level2" ? "Buddy Lv2" : "Buddy Lv1"}` : "";
   els.cyclePhaseTitle.textContent = `${cycle.length}週中 ${cycle.week}週目 / ${phase.name}${levelLabel}`;
-  els.cyclePhaseNote.textContent = `${phase.note} ${programMethodInfo(cycle).note}`;
+  els.cyclePhaseNote.textContent = guideEnabled() ? `${phase.note} ${programMethodInfo(cycle).note}` : "";
   renderRpeCoach(cycle, phase);
   renderProjections(cycle);
 
@@ -930,6 +948,10 @@ function renderPlan() {
 }
 
 function renderRpeCoach(cycle, phase) {
+  if (!guideEnabled()) {
+    els.rpeCoachCard.innerHTML = "";
+    return;
+  }
   const isAccumulation = phase.name === "蓄積期";
   const guide = cycle.programMethod === "platform" && cycle.buddyLevel === "level2"
     ? "Lv2はRPEと%1RMを併用します。表示重量は刺激の下限と上限を守るための目安です。@8を超える日は重量を下げ、軽くても+2.5kg程度に留めて週全体の波を崩さないでください。"
@@ -1020,18 +1042,20 @@ function applyProgramRules(cycle, previousMethod = cycle.programMethod, previous
 }
 
 function planInsight(cycle) {
+  const showGuide = guideEnabled();
   const athlete = currentAthlete();
   const method = programMethodInfo(cycle);
   const balance = liftBalance(cycle, athlete);
   const levelWarning = cycle.programMethod === "platform" && cycle.buddyLevel === "level2" && cycle.experienceLevel === "beginner"
-    ? `<p><strong>注意:</strong> Lv2はRPEを守って重量を下げられる方、直近で痛みや強い疲労がない方におすすめです。初心者はLv1から始めると安全です。</p>`
+    ? `<p class="safety-note"><strong>注意:</strong> Lv2はRPEを守って重量を下げられる方、直近で痛みや強い疲労がない方におすすめです。初心者はLv1から始めると安全です。</p>`
     : "";
   const levelActiveNote = cycle.programMethod === "platform" && cycle.buddyLevel === "level2"
-    ? `<p><strong>Lv2適用中:</strong> 表示メニューは週内非線形です。SQ/DL週2回、BP週3〜4回を目安に、高強度日・ボリューム日・技術日を分けて表示します。</p>`
+    ? `<p class="guide-note"><strong>Lv2適用中:</strong> 表示メニューは週内非線形です。SQ/DL週2回、BP週3〜4回を目安に、高強度日・ボリューム日・技術日を分けて表示します。</p>`
     : "";
+  if (!showGuide && !levelWarning) return "";
   if (!balance && cycle.planTarget === "bench_only") {
     const recommended = cycle.programMethod === "platform" ? `<span class="recommended-badge">迷ったらこれ</span>` : "";
-    return `<article class="plan-card ${cycle.programMethod === "platform" ? "recommended-plan" : ""}">${recommended}<h2>${method.label}</h2><p>${method.note}</p>${levelActiveNote}${levelWarning}</article>`;
+    return `<article class="plan-card ${cycle.programMethod === "platform" ? "recommended-plan" : ""}">${recommended}<h2>${method.label}</h2>${showGuide ? `<p class="guide-note">${method.note}</p>${levelActiveNote}` : ""}${levelWarning}</article>`;
   }
   if (!balance) return "";
   const classLabel = weightClassMeta(athlete.sex, athlete.weightClass)[1];
@@ -1047,8 +1071,7 @@ function planInsight(cycle) {
     <article class="plan-card ${cycle.programMethod === "platform" ? "recommended-plan" : ""}">
       ${cycle.programMethod === "platform" ? `<span class="recommended-badge">迷ったらこれ</span>` : ""}
       <h2>${method.label} / ${athlete.sex === "female" ? "女性" : "男性"} ${classLabel} / 現在トータル ${balance.total}kg</h2>
-      <p>${method.note} ${note}</p>
-      ${levelActiveNote}
+      ${showGuide ? `<p class="guide-note">${method.note} ${note}</p>${levelActiveNote}` : ""}
       ${levelWarning}
     </article>
   `;
@@ -1298,17 +1321,20 @@ function liftBalance(cycle = normalizedCycle(), athlete = currentAthlete()) {
 
 function exerciseLine(item, cycle, dayIndex = 0, itemIndex = 0) {
   if (item.kind === "method") {
-    return `<div class="exercise-row"><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.work)}</span><p>${escapeHtml(item.note)}</p>${actualInputBlock(item, cycle, item.work, item.note, dayIndex, itemIndex)}</div>`;
+    const note = guideEnabled() && item.note ? `<p class="guide-note">${escapeHtml(item.note)}</p>` : "";
+    return `<div class="exercise-row"><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.work)}</span>${note}${actualInputBlock(item, cycle, item.work, item.note, dayIndex, itemIndex)}</div>`;
   }
   if (item.kind === "accessory") {
     const badge = item.exerciseId && equipmentLabel(item.exerciseId)
       ? `<em class="equipment-tag">${equipmentLabel(item.exerciseId)}</em>`
       : "";
-    return `<div class="exercise-row"><strong>${escapeHtml(item.name)}${badge}</strong><span>${item.work}</span><p>${item.note}</p></div>`;
+    const note = guideEnabled() && item.note ? `<p class="guide-note">${item.note}</p>` : "";
+    return `<div class="exercise-row"><strong>${escapeHtml(item.name)}${badge}</strong><span>${item.work}</span>${note}</div>`;
   }
   const max = Number(cycle.maxes[item.lift] || bestE1rm(item.lift) || 0);
   const prescription = prescriptionForWeek(item.lift, max, cycle.week, cycle.length, cycle.daysPerWeek, item.variant, cycle.priorityLift, cycle.buddyLevel);
-  return `<div class="exercise-row"><strong>${item.name}</strong><span>${prescription.title}</span><p>${prescription.detail}</p>${actualInputBlock(item, cycle, prescription.title, prescription.detail, dayIndex, itemIndex)}</div>`;
+  const detail = guideEnabled() && prescription.detail ? `<p class="guide-note">${prescription.detail}</p>` : "";
+  return `<div class="exercise-row"><strong>${item.name}</strong><span>${prescription.title}</span>${detail}${actualInputBlock(item, cycle, prescription.title, prescription.detail, dayIndex, itemIndex)}</div>`;
 }
 
 function actualInputBlock(item, cycle, planText, detail, dayIndex, itemIndex) {
@@ -1349,6 +1375,7 @@ function planFeedbackKey(cycle, dayIndex, itemIndex, lift, name) {
 }
 
 function feedbackMarkup(feedback) {
+  if (!guideEnabled() && ["ok", "light"].includes(feedback.status)) return "";
   return `<p class="rpe-feedback ${feedback.status}">${escapeHtml(feedback.message)}</p>`;
 }
 
@@ -1356,6 +1383,7 @@ function previousFeedbackMarkup(cycle, item) {
   if (cycle.week <= 1 || !item.lift) return "";
   const previous = findPreviousFeedback(cycle, item);
   if (!previous) return "";
+  if (!guideEnabled() && ["ok", "light"].includes(previous.status)) return "";
   const planned = previous.plannedRpe ? `@${previous.plannedRpe}` : "RPE未設定";
   const actual = previous.rpe ? `@${previous.rpe}` : "RPE未入力";
   const adjustment = previousAdjustmentMessage(previous);
@@ -2327,6 +2355,11 @@ document.querySelector("#clearBtn").addEventListener("click", () => {
 });
 
 document.querySelector("#saveCycleBtn").addEventListener("click", updateCycleFromInputs);
+els.guideModeBtn.addEventListener("click", () => {
+  state.guideMode = !guideEnabled();
+  saveState();
+  render();
+});
 els.facilityGrid.addEventListener("change", updateCycleFromInputs);
 document.querySelector("#prevWeekBtn").addEventListener("click", () => {
   const cycle = normalizedCycle();

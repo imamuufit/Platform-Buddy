@@ -127,6 +127,28 @@ h2 {
   margin-bottom: 14px;
 }
 
+.plan-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.guide-off .screen-note,
+.guide-off .data-note,
+.guide-off .cycle-method-note,
+.guide-off .program-disclaimer,
+.guide-off .cycle-note,
+.guide-off .rpe-coach-card,
+.guide-off .guide-note,
+.guide-off .rpe-feedback.ok,
+.guide-off .rpe-feedback.light,
+.guide-off .previous-rpe.ok,
+.guide-off .previous-rpe.light {
+  display: none;
+}
+
 .screen-note {
   margin: -4px 0 14px;
   color: var(--muted);
