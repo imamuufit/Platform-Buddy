@@ -348,6 +348,7 @@ const els = {
   daysPerWeekInput: document.querySelector("#daysPerWeekInput"),
   accessoryVolumeInput: document.querySelector("#accessoryVolumeInput"),
   priorityLiftInput: document.querySelector("#priorityLiftInput"),
+  experienceLevelInput: document.querySelector("#experienceLevelInput"),
   cycleMethodNote: document.querySelector("#cycleMethodNote"),
   programDisclaimer: document.querySelector("#programDisclaimer"),
   facilityGrid: document.querySelector("#facilityGrid"),
@@ -377,6 +378,7 @@ function defaultCycle() {
     programMethod: "platform",
     accessoryVolume: "normal",
     priorityLift: "total",
+    experienceLevel: "beginner",
     week: 1,
     availableFacilityExercises: [],
     maxes: { squat: "", bench: "", deadlift: "" }
@@ -437,6 +439,9 @@ function migrateState(rawState) {
       priorityLift: ["total", "squat", "bench", "deadlift"].includes((athlete.cycle || {}).priorityLift)
         ? athlete.cycle.priorityLift
         : "total",
+      experienceLevel: ["beginner", "intermediate", "advanced"].includes((athlete.cycle || {}).experienceLevel)
+        ? athlete.cycle.experienceLevel
+        : "beginner",
       availableFacilityExercises: Array.isArray((athlete.cycle || {}).availableFacilityExercises)
         ? athlete.cycle.availableFacilityExercises
         : [],
@@ -896,7 +901,7 @@ function setDetailsMarkup(log) {
 
 function renderPlan() {
   const cycle = normalizedCycle();
-  const phase = cyclePhase(cycle.week, cycle.length);
+  const phase = cyclePhase(cycle.week, cycle.length, cycle.programMethod);
   els.cyclePhaseTitle.textContent = `${cycle.length}週中 ${cycle.week}週目 / ${phase.name}`;
   els.cyclePhaseNote.textContent = `${phase.note} ${programMethodInfo(cycle).note}`;
   renderRpeCoach(cycle, phase);
@@ -951,7 +956,7 @@ function activePlanLiftIds(cycle = normalizedCycle()) {
 function programMethodInfo(cycle = normalizedCycle()) {
   const target = cycle.planTarget === "bench_only" ? "ベンチプレスのみ" : "BIG3";
   const info = {
-    platform: ["Buddy式（おすすめ）", "迷ったらこれ。性別、階級、重点種目、設備環境に合わせつつ、忙しさに応じて週3〜5回と補助量を調整できます。RPEを練習しながらMAX更新と大会挑戦を狙う、このアプリの標準プランです。"],
+    platform: ["Buddy式（おすすめ）", "前半4週で現在のMAXを安定させ、休養後の現在地チェックで再現性を確認し、後半の強化・ピーキングから大会想定MAXチェックへ進む標準プランです。"],
     hps: ["HPS（BP向き）", "Hypertrophy → Power → Strength のDUP型。特にベンチ強化との相性が良い方式です。"],
     "531": ["5/3/1（長期型）", "Training Maxを使って堅実に積む長期型。AMRAPは余力を残して止めます。"],
     smolov_jr: ["Smolov Jr.（SQ/BP高負荷）", "3週・週4固定の短期集中高ボリューム方式。SQ/BP向けで、DLには適用しません。補助種目は最小限にします。"]
@@ -1041,6 +1046,7 @@ function renderCycleInputs() {
   els.daysPerWeekInput.value = String(cycle.daysPerWeek);
   els.accessoryVolumeInput.value = cycle.accessoryVolume;
   els.priorityLiftInput.value = cycle.priorityLift;
+  els.experienceLevelInput.value = cycle.experienceLevel;
   els.cycleMethodNote.textContent = methodControlNote(cycle);
   els.programDisclaimer.textContent = programDisclaimerText(cycle);
   els.programDisclaimer.classList.toggle("hidden", cycle.programMethod === "platform");
@@ -1065,6 +1071,7 @@ function updateCycleOptionControls(cycle) {
 
 function methodControlNote(cycle) {
   const locked = methodDefaults(cycle.programMethod, cycle.planTarget).locked;
+  if (cycle.programMethod === "platform") return `トレーニング週数は${cycle.length}週。現在地チェック前の休養ブロックを含むため、想定完了期間は約${cycle.length + 1}週です。`;
   if (!locked.length) return "この方式では週数・頻度を選択できます。";
   if (cycle.programMethod === "hps") return "HPSは6週・週3回固定です。Hypertrophy → Power → Strengthの順で回します。";
   if (cycle.programMethod === "smolov_jr") return "Smolov Jr.は3週・週4回・補助少なめ固定です。SQ/BP向けで、DLには適用しません。";
@@ -1100,6 +1107,9 @@ function normalizedCycle() {
   athlete.cycle.priorityLift = ["total", "squat", "bench", "deadlift"].includes(athlete.cycle.priorityLift)
     ? athlete.cycle.priorityLift
     : "total";
+  athlete.cycle.experienceLevel = ["beginner", "intermediate", "advanced"].includes(athlete.cycle.experienceLevel)
+    ? athlete.cycle.experienceLevel
+    : "beginner";
   athlete.cycle.week = Math.min(Number(athlete.cycle.week || 1), athlete.cycle.length);
   athlete.cycle.availableFacilityExercises = Array.isArray(athlete.cycle.availableFacilityExercises)
     ? athlete.cycle.availableFacilityExercises.filter((id) => facilityExerciseOptions.includes(id))
@@ -1119,6 +1129,7 @@ function updateCycleFromInputs() {
   cycle.programMethod = els.programMethodInput.value;
   cycle.accessoryVolume = els.accessoryVolumeInput.value;
   cycle.priorityLift = els.priorityLiftInput.value;
+  cycle.experienceLevel = els.experienceLevelInput.value;
   cycle.week = Math.min(Math.max(Number(els.cycleWeekInput.value || 1), 1), cycle.length);
   cycle.availableFacilityExercises = [...els.facilityGrid.querySelectorAll("input:checked")].map((input) => input.value);
   cycle.maxes = {
@@ -1131,7 +1142,19 @@ function updateCycleFromInputs() {
   render();
 }
 
-function cyclePhase(week, length) {
+function cyclePhase(week, length, programMethod = "platform") {
+  if (programMethod === "platform" && length >= 10 && week === 5) {
+    return {
+      name: "現在地チェック",
+      note: "3日程度の休養で疲労を抜き、前半4週で作ったフォーム再現性とRPE感覚を確認する週。限界MAXは必須ではありません。"
+    };
+  }
+  if (programMethod === "platform" && week === length) {
+    return {
+      name: "大会想定MAXチェック",
+      note: "通常練習ではなく、SQ→BP→DLを1日にまとめて試技形式で確認する週。第一・第二は成功率、第三だけMAX更新候補。"
+    };
+  }
   const ratio = week / length;
   if (ratio <= 0.34) {
     return {
@@ -1151,10 +1174,7 @@ function cyclePhase(week, length) {
       note: "1RMに近い重量へ慣らす週。ボリュームを落とし、重さの精度と成功率を上げる。"
     };
   }
-  return {
-    name: "PRテスト",
-    note: "疲労を抜いてPRを試す週。第1試技、第2試技、PR挑戦の流れで安全に更新を狙う。"
-  };
+  return { name: "大会想定MAXチェック", note: "SQ→BP→DLの順で確認する週。" };
 }
 
 function renderProjections(cycle) {
@@ -1319,7 +1339,7 @@ function previousAdjustmentMessage(feedback) {
 }
 
 function prescriptionForWeek(liftId, max, week, length, daysPerWeek, variant = "main", priorityLift = "total") {
-  const phase = cyclePhase(week, length).name;
+  const phase = cyclePhase(week, length, "platform").name;
   const intensity = intensityForWeek(week, length);
   const variantScale = { main: 1, volume: 0.92, technique: 0.85, light: 0.78 }[variant] || 1;
   const topWeight = roundToIncrement(max * intensity.top * variantScale, 2.5);
@@ -1392,7 +1412,9 @@ function weeklyTemplate(cycle) {
   if (cycle.programMethod === "531") return fiveThreeOneTemplate(cycle);
   if (cycle.programMethod === "smolov_jr") return smolovJrTemplate(cycle);
 
-  const phase = cyclePhase(cycle.week, cycle.length).name;
+  const phase = cyclePhase(cycle.week, cycle.length, cycle.programMethod).name;
+  if (phase === "現在地チェック") return currentCheckTemplate(cycle);
+  if (phase === "大会想定MAXチェック") return finalMeetTemplate(cycle);
   const accessoryLimit = accessoryLimitFor(cycle.daysPerWeek, cycle.accessoryVolume, phase);
   const squat = j([12473,12463,12527,12483,12488]);
   const bench = j([12505,12531,12481,12503,12524,12473]);
@@ -1429,6 +1451,76 @@ function weeklyTemplate(cycle) {
       items: adjustAccessories(focusedDay, accessoryLimit, cycle)
     };
   });
+}
+
+function currentCheckTemplate(cycle) {
+  const lifts = activePlanLiftIds(cycle);
+  return [
+    {
+      title: "休養ブロック",
+      items: [
+        { kind: "accessory", name: "3日間の休養", work: "完全休養 or 散歩・ストレッチ", note: "蓄積期の疲労を抜いてから現在地チェックへ。筋トレは足さない。" }
+      ]
+    },
+    {
+      title: "現在地チェック",
+      items: lifts.map((lift) => methodItem(lift, exerciseMeta(lift).name, currentCheckWork(lift, cycle), currentCheckNote(cycle)))
+    },
+    {
+      title: "軽い回復",
+      items: [
+        { kind: "accessory", name: "フォーム確認", work: "50〜60% x 3 x 2", note: "重さを足さず、可動域と試技動作だけ確認。" },
+        { kind: "accessory", name: "コンディショニング", work: "10〜20分", note: "散歩、軽いバイク、ストレッチ程度。" }
+      ]
+    }
+  ];
+}
+
+function currentCheckWork(lift, cycle) {
+  const max = Number(cycle.maxes[lift] || bestE1rm(lift) || 0);
+  if (!max) return "現在1RMを入力";
+  if (cycle.experienceLevel === "advanced") return `${roundToIncrement(max * 0.92, 2.5)}kg x 1 @9`;
+  if (cycle.experienceLevel === "intermediate") return `${roundToIncrement(max * 0.88, 2.5)}kg x 1 @8〜9`;
+  return `${roundToIncrement(max * 0.82, 2.5)}kg x 3〜5 @8`;
+}
+
+function currentCheckNote(cycle) {
+  if (cycle.experienceLevel === "advanced") return "限界1RMではなく、試技形式に近い重めシングルで再現性を確認。失敗する重量は選ばない。";
+  if (cycle.experienceLevel === "intermediate") return "重めシングルで1RM付近への慣れを確認。RPEが高すぎる場合は後半を控えめに調整。";
+  return "初心者は1RMではなく3〜5回@8で確認。高重量低回数への慣れとフォーム再現性を優先。";
+}
+
+function finalMeetTemplate(cycle) {
+  const lifts = activePlanLiftIds(cycle);
+  return [
+    {
+      title: "Day1 調整",
+      items: lifts.map((lift) => methodItem(lift, exerciseMeta(lift).name, `${roundToIncrement(Number(cycle.maxes[lift] || bestE1rm(lift) || 0) * 0.65, 2.5)}kg x 3 x 2`, "60〜70%目安。軽く速く、フォームとコールだけ確認。"))
+    },
+    {
+      title: "Day2 休養",
+      items: [
+        { kind: "accessory", name: "完全休養", work: "休む", note: "追加練習はしない。睡眠、食事、当日の準備を優先。" }
+      ]
+    },
+    {
+      title: "Day3 BIG3大会想定",
+      items: lifts.map((lift) => finalAttemptItem(lift, cycle))
+    }
+  ];
+}
+
+function finalAttemptItem(lift, cycle) {
+  const max = Number(cycle.maxes[lift] || bestE1rm(lift) || 0);
+  const range = max ? projectedPrRange(lift, max, cycle.length, cycle.daysPerWeek, cycle.priorityLift) : { low: "-", high: "-" };
+  const first = max ? roundToIncrement(max * 0.9, 2.5) : "-";
+  const second = max ? roundToIncrement(max * 0.97, 2.5) : "-";
+  return methodItem(
+    lift,
+    exerciseMeta(lift).name,
+    `第一 ${first}kg @6 / 第二 ${second}kg @7.5 / 第三 ${range.low}〜${range.high}kg`,
+    "SQ→BP→DLの順で実施。白9本を優先し、第一・第二で成功を作って第三だけMAX更新候補から選ぶ。"
+  );
 }
 
 function mainItem(lift, name, variant) {
@@ -2072,6 +2164,7 @@ document.querySelector("#nextWeekBtn").addEventListener("click", () => {
   els.daysPerWeekInput,
   els.accessoryVolumeInput,
   els.priorityLiftInput,
+  els.experienceLevelInput,
   els.cycleWeekInput,
   els.squatMaxInput,
   els.benchMaxInput,
@@ -2126,7 +2219,7 @@ function planRowsForWeek(cycle, week) {
 function workbookSheets() {
   const athlete = currentAthlete();
   const cycle = normalizedCycle();
-  const phase = cyclePhase(cycle.week, cycle.length);
+  const phase = cyclePhase(cycle.week, cycle.length, cycle.programMethod);
   const balance = liftBalance(cycle, athlete);
   const classLabel = weightClassMeta(athlete.sex, athlete.weightClass)[1];
   const maxRows = activePlanLiftIds(cycle).map((liftId) => {
@@ -2140,7 +2233,8 @@ function workbookSheets() {
     [cell("性別", 7), cell(athlete.sex === "female" ? "女性" : "男性", 8), cell("階級", 7), cell(classLabel, 8)],
     [cell("体重", 7), cell(athlete.bodyweight ? `${athlete.bodyweight}kg` : "-", 8), cell("対象", 7), cell(cycle.planTarget === "bench_only" ? "ベンチプレスのみ" : "BIG3", 8)],
     [cell("プラン方式", 7), cell(programMethodInfo(cycle).label, 8), cell("重点種目", 7), cell(cycle.priorityLift === "total" ? "トータル重視" : `${mainLiftNames[cycle.priorityLift]}重視`, 8)],
-    [cell("週数", 7), cell(`${cycle.length}週`, 8), cell("週頻度", 7), cell(`週${cycle.daysPerWeek}回`, 8)],
+    [cell("週数", 7), cell(`${cycle.length}週`, 8), cell("想定完了", 7), cell(cycle.programMethod === "platform" ? `約${cycle.length + 1}週` : `${cycle.length}週`, 8)],
+    [cell("週頻度", 7), cell(`週${cycle.daysPerWeek}回`, 8), cell("経験レベル", 7), cell({ beginner: "初心者", intermediate: "中級者", advanced: "上級者" }[cycle.experienceLevel] || "-", 8)],
     [cell("補助種目量", 7), cell({ low: "少なめ", normal: "普通", high: "多め" }[cycle.accessoryVolume] || cycle.accessoryVolume, 8), cell("おすすめ", 7), cell(balance ? `${mainLiftNames[balance.recommended]}が相対的に低め` : "-", 9)],
     [],
     [cell("種目", 3), cell("現在1RM", 3), cell("予測PRレンジ", 3)],
@@ -2185,7 +2279,7 @@ function styledLogRows(athlete = currentAthlete()) {
 }
 
 function weekSheetRows(cycle, week) {
-  const phase = cyclePhase(week, cycle.length);
+  const phase = cyclePhase(week, cycle.length, cycle.programMethod);
   const rows = [
     [cell(`W${week} プラン`, 1), "", "", "", "", ""],
     [cell("目的", 7), cell(phase.name, 8), cell("メモ", 7), cell(phase.note, 8), "", ""],
