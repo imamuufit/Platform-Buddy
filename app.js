@@ -1866,8 +1866,8 @@ function renderSetRows(prefill = false) {
 }
 
 function collectSetDetails() {
-  if (!els.setDetailPanel.open) return [];
-  return Array.from(els.setRows.querySelectorAll(".set-row"))
+  if (!els.setDetailPanel.open) return aggregateSetDetails();
+  const detailedSets = Array.from(els.setRows.querySelectorAll(".set-row"))
     .map((row, index) => ({
       set: index + 1,
       weight: Number(row.querySelector(".set-weight").value),
@@ -1875,6 +1875,21 @@ function collectSetDetails() {
       rpe: row.querySelector(".set-rpe").value ? Number(row.querySelector(".set-rpe").value) : ""
     }))
     .filter((set) => set.weight && set.reps);
+  return detailedSets.length ? detailedSets : aggregateSetDetails();
+}
+
+function aggregateSetDetails() {
+  const count = Math.max(1, Math.min(20, Number(els.setsInput.value || 1)));
+  const weight = Number(els.weightInput.value);
+  const reps = Number(els.repsInput.value);
+  const rpe = els.rpeInput.value ? Number(els.rpeInput.value) : "";
+  if (!weight || !reps) return [];
+  return Array.from({ length: count }, (_, index) => ({
+    set: index + 1,
+    weight,
+    reps,
+    rpe
+  }));
 }
 
 function setDetailsText(log) {
