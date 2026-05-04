@@ -135,6 +135,41 @@ h2 {
   justify-content: flex-end;
 }
 
+.collapse-toggle {
+  border: 0;
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  background: #e9edf2;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.collapsible-content {
+  display: grid;
+  gap: 12px;
+}
+
+.collapsible-content.collapsed {
+  display: none;
+}
+
+.collapse-summary {
+  margin: -4px 0 12px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.facility-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .guide-off .screen-note,
 .guide-off .data-note,
 .guide-off .cycle-method-note,

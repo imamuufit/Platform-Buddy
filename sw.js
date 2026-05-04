@@ -1,4 +1,4 @@
-const CACHE_NAME = "platform-buddy-v39";
+const CACHE_NAME = "platform-buddy-v40";
 const ASSETS = [
   "./",
   "index.html",

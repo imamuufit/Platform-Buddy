@@ -41,35 +41,39 @@
             <div class="athlete-actions">
               <button class="text-button" id="addAthleteBtn" type="button">選手追加</button>
               <button class="text-button danger" id="deleteAthleteBtn" type="button">選手削除</button>
+              <button class="collapse-toggle" id="profileCollapseBtn" type="button" aria-label="プロフィールを閉じる" aria-expanded="true">▴</button>
             </div>
           </div>
-          <div class="athlete-strip" id="athleteStrip" aria-label="選手一覧"></div>
-          <div class="profile-grid">
-            <label>
-              性別
-              <select id="sexInput">
-                <option value="male">男性</option>
-                <option value="female">女性</option>
-              </select>
-            </label>
-            <label>
-              体重
-              <input id="bodyweightInput" inputmode="decimal" type="number" min="0" step="0.1" placeholder="kg">
-            </label>
-            <label>
-              体重階級
-              <select id="weightClassInput"></select>
-            </label>
-            <label>
-              都道府県
-              <select id="prefectureInput"></select>
-            </label>
-            <label>
-              試合予定
-              <input id="meetDateInput" type="date">
-            </label>
+          <p class="collapse-summary" id="profileSummary"></p>
+          <div class="collapsible-content" id="profilePanelContent">
+            <div class="athlete-strip" id="athleteStrip" aria-label="選手一覧"></div>
+            <div class="profile-grid">
+              <label>
+                性別
+                <select id="sexInput">
+                  <option value="male">男性</option>
+                  <option value="female">女性</option>
+                </select>
+              </label>
+              <label>
+                体重
+                <input id="bodyweightInput" inputmode="decimal" type="number" min="0" step="0.1" placeholder="kg">
+              </label>
+              <label>
+                体重階級
+                <select id="weightClassInput"></select>
+              </label>
+              <label>
+                都道府県
+                <select id="prefectureInput"></select>
+              </label>
+              <label>
+                試合予定
+                <input id="meetDateInput" type="date">
+              </label>
+            </div>
+            <section class="association-guide" id="associationGuide"></section>
           </div>
-          <section class="association-guide" id="associationGuide"></section>
         </section>
 
         <nav class="tabbar" aria-label="メイン画面">
@@ -170,102 +174,110 @@
                 <h2>PRサイクル設計</h2>
               </div>
               <div class="plan-actions">
+                <button class="collapse-toggle" id="cycleCollapseBtn" type="button" aria-label="PRサイクル設計を閉じる" aria-expanded="true">▴</button>
                 <button class="text-button" id="guideModeBtn" type="button">ガイドON</button>
                 <button class="text-button" id="saveCycleBtn" type="button">保存</button>
               </div>
             </div>
-            <p class="screen-note">プラン内の実績は各メニューで入力。プラン外の練習は自由記録へ。</p>
-            <div class="cycle-grid">
-              <label>
-                プラン対象
-                <select id="planTargetInput">
-                  <option value="big3">BIG3</option>
-                  <option value="bench_only">ベンチプレスのみ</option>
-                </select>
-              </label>
-              <label>
-                プラン方式
-                <select id="programMethodInput">
-                  <option value="platform">Buddyメソッド Lv1（標準）</option>
-                  <option value="platform_level2">Buddyメソッド Lv2（実戦寄り）</option>
-                  <option value="hps">HPS（BP向き）</option>
-                  <option value="531">5/3/1（長期型）</option>
-                  <option value="smolov_jr">Smolov Jr.（SQ/BP高負荷）</option>
-                </select>
-              </label>
-              <label>
-                週数
-                <select id="cycleLengthInput">
-                  <option value="3">3週</option>
-                  <option value="4">4週</option>
-                  <option value="6">6週</option>
-                  <option value="8">8週</option>
-                  <option value="10">10週</option>
-                  <option value="12">12週</option>
-                </select>
-              </label>
-              <label>
-                週あたり
-                <select id="daysPerWeekInput">
-                  <option value="3">週3回</option>
-                  <option value="4">週4回</option>
-                  <option value="5">週5回</option>
-                </select>
-              </label>
-              <label>
-                補助種目量
-                <select id="accessoryVolumeInput">
-                  <option value="low">少なめ</option>
-                  <option value="normal">普通</option>
-                  <option value="high">多め</option>
-                </select>
-              </label>
-              <label>
-                重点種目
-                <select id="priorityLiftInput">
-                  <option value="total">トータル重視</option>
-                  <option value="squat">スクワット重視</option>
-                  <option value="bench">ベンチ重視</option>
-                  <option value="deadlift">デッドリフト重視</option>
-                </select>
-              </label>
-              <label>
-                経験レベル
-                <select id="experienceLevelInput">
-                  <option value="beginner">初心者</option>
-                  <option value="intermediate">中級者</option>
-                  <option value="advanced">上級者</option>
-                </select>
-              </label>
-              <label>
-                現在の週
-                <input id="cycleWeekInput" inputmode="numeric" type="number" min="1" max="12" step="1">
-              </label>
-            </div>
-            <p class="cycle-method-note" id="cycleMethodNote"></p>
-            <p class="program-disclaimer" id="programDisclaimer"></p>
-            <div class="max-grid">
-              <label>
-                SQ 現在1RM
-                <input id="squatMaxInput" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg">
-              </label>
-              <label>
-                BP 現在1RM
-                <input id="benchMaxInput" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg">
-              </label>
-              <label>
-                DL 現在1RM
-                <input id="deadliftMaxInput" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg">
-              </label>
-            </div>
-            <section class="facility-panel">
-              <div>
-                <h3>設備依存種目</h3>
-                <p>使える設備にチェックすると、プランの補助種目候補に入ります。</p>
+            <p class="collapse-summary" id="cycleSummary"></p>
+            <div class="collapsible-content" id="cyclePanelContent">
+              <p class="screen-note">プラン内の実績は各メニューで入力。プラン外の練習は自由記録へ。</p>
+              <div class="cycle-grid">
+                <label>
+                  プラン対象
+                  <select id="planTargetInput">
+                    <option value="big3">BIG3</option>
+                    <option value="bench_only">ベンチプレスのみ</option>
+                  </select>
+                </label>
+                <label>
+                  プラン方式
+                  <select id="programMethodInput">
+                    <option value="platform">Buddyメソッド Lv1（標準）</option>
+                    <option value="platform_level2">Buddyメソッド Lv2（実戦寄り）</option>
+                    <option value="hps">HPS（BP向き）</option>
+                    <option value="531">5/3/1（長期型）</option>
+                    <option value="smolov_jr">Smolov Jr.（SQ/BP高負荷）</option>
+                  </select>
+                </label>
+                <label>
+                  週数
+                  <select id="cycleLengthInput">
+                    <option value="3">3週</option>
+                    <option value="4">4週</option>
+                    <option value="6">6週</option>
+                    <option value="8">8週</option>
+                    <option value="10">10週</option>
+                    <option value="12">12週</option>
+                  </select>
+                </label>
+                <label>
+                  週あたり
+                  <select id="daysPerWeekInput">
+                    <option value="3">週3回</option>
+                    <option value="4">週4回</option>
+                    <option value="5">週5回</option>
+                  </select>
+                </label>
+                <label>
+                  補助種目量
+                  <select id="accessoryVolumeInput">
+                    <option value="low">少なめ</option>
+                    <option value="normal">普通</option>
+                    <option value="high">多め</option>
+                  </select>
+                </label>
+                <label>
+                  重点種目
+                  <select id="priorityLiftInput">
+                    <option value="total">トータル重視</option>
+                    <option value="squat">スクワット重視</option>
+                    <option value="bench">ベンチ重視</option>
+                    <option value="deadlift">デッドリフト重視</option>
+                  </select>
+                </label>
+                <label>
+                  経験レベル
+                  <select id="experienceLevelInput">
+                    <option value="beginner">初心者</option>
+                    <option value="intermediate">中級者</option>
+                    <option value="advanced">上級者</option>
+                  </select>
+                </label>
+                <label>
+                  現在の週
+                  <input id="cycleWeekInput" inputmode="numeric" type="number" min="1" max="12" step="1">
+                </label>
               </div>
-              <div class="facility-grid" id="facilityGrid"></div>
-            </section>
-            <div class="projection-grid" id="projectionGrid"></div>
+              <p class="cycle-method-note" id="cycleMethodNote"></p>
+              <p class="program-disclaimer" id="programDisclaimer"></p>
+              <div class="max-grid">
+                <label>
+                  SQ 現在1RM
+                  <input id="squatMaxInput" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg">
+                </label>
+                <label>
+                  BP 現在1RM
+                  <input id="benchMaxInput" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg">
+                </label>
+                <label>
+                  DL 現在1RM
+                  <input id="deadliftMaxInput" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg">
+                </label>
+              </div>
+              <section class="facility-panel">
+                <div class="facility-head">
+                  <div>
+                    <h3>設備依存種目</h3>
+                    <p>使える設備にチェックすると、プランの補助種目候補に入ります。</p>
+                  </div>
+                  <button class="collapse-toggle" id="facilityCollapseBtn" type="button" aria-label="設備依存種目を閉じる" aria-expanded="true">▴</button>
+                </div>
+                <p class="collapse-summary" id="facilitySummary"></p>
+                <div class="facility-grid collapsible-content" id="facilityGrid"></div>
+              </section>
+              <div class="projection-grid" id="projectionGrid"></div>
+            </div>
           </section>
 
           <section class="panel">

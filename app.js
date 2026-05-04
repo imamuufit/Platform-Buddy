@@ -288,6 +288,7 @@ const prefectures = [
 const defaultState = {
   currentAthleteId: "me",
   guideMode: true,
+  collapsed: { profile: false, cycle: false, facilities: false },
   athletes: [
     {
       id: "me",
@@ -315,6 +316,9 @@ let state = loadState();
 const els = {
   athleteStrip: document.querySelector("#athleteStrip"),
   currentAthleteName: document.querySelector("#currentAthleteName"),
+  profileCollapseBtn: document.querySelector("#profileCollapseBtn"),
+  profilePanelContent: document.querySelector("#profilePanelContent"),
+  profileSummary: document.querySelector("#profileSummary"),
   sexInput: document.querySelector("#sexInput"),
   bodyweightInput: document.querySelector("#bodyweightInput"),
   weightClassInput: document.querySelector("#weightClassInput"),
@@ -363,6 +367,11 @@ const els = {
   backupFileInput: document.querySelector("#backupFileInput"),
   dataStatus: document.querySelector("#dataStatus"),
   guideModeBtn: document.querySelector("#guideModeBtn"),
+  cycleCollapseBtn: document.querySelector("#cycleCollapseBtn"),
+  cyclePanelContent: document.querySelector("#cyclePanelContent"),
+  cycleSummary: document.querySelector("#cycleSummary"),
+  facilityCollapseBtn: document.querySelector("#facilityCollapseBtn"),
+  facilitySummary: document.querySelector("#facilitySummary"),
   deleteAthleteBtn: document.querySelector("#deleteAthleteBtn"),
   athleteDialog: document.querySelector("#athleteDialog"),
   athleteForm: document.querySelector("#athleteForm"),
@@ -421,6 +430,10 @@ function loadState() {
 function migrateState(rawState) {
   const migrated = rawState;
   migrated.guideMode = typeof migrated.guideMode === "boolean" ? migrated.guideMode : true;
+  migrated.collapsed = {
+    ...defaultState.collapsed,
+    ...(migrated.collapsed || {})
+  };
   migrated.athletes = (migrated.athletes || []).map((athlete) => ({
     ...athlete,
     sex: ["male", "female"].includes(athlete.sex) ? athlete.sex : "male",
@@ -552,6 +565,41 @@ function renderGuideMode() {
   }
 }
 
+function renderCollapseState(athlete = currentAthlete(), cycle = normalizedCycle()) {
+  state.collapsed = { ...defaultState.collapsed, ...(state.collapsed || {}) };
+  applyCollapse("profile", els.profilePanelContent, els.profileCollapseBtn, "プロフィール");
+  applyCollapse("cycle", els.cyclePanelContent, els.cycleCollapseBtn, "PRサイクル設計");
+  applyCollapse("facilities", els.facilityGrid, els.facilityCollapseBtn, "設備依存種目");
+  renderCollapseSummaries(athlete, cycle);
+}
+
+function applyCollapse(key, content, button, label) {
+  const collapsed = Boolean(state.collapsed?.[key]);
+  content?.classList.toggle("collapsed", collapsed);
+  if (button) {
+    button.textContent = collapsed ? "▾" : "▴";
+    button.setAttribute("aria-expanded", String(!collapsed));
+    button.setAttribute("aria-label", `${label}を${collapsed ? "開く" : "閉じる"}`);
+  }
+}
+
+function renderCollapseSummaries(athlete, cycle) {
+  const classLabel = weightClassMeta(athlete.sex, athlete.weightClass)[1];
+  const sexLabel = athlete.sex === "female" ? "女性" : "男性";
+  const bodyweight = athlete.bodyweight ? `${athlete.bodyweight}kg` : "体重未設定";
+  const prefecture = athlete.prefecture || "エリア未設定";
+  const meet = athlete.meetDate ? `試合 ${athlete.meetDate}` : "試合未設定";
+  els.profileSummary.textContent = `${sexLabel} / ${bodyweight} / ${classLabel} / ${prefecture} / ${meet}`;
+
+  const method = programMethodInfo(cycle).label.replace(" / BIG3", "").replace(" / ベンチプレスのみ", "");
+  const target = cycle.planTarget === "bench_only" ? "BPのみ" : "BIG3";
+  const priority = cycle.priorityLift === "total" ? "トータル重視" : `${mainLiftNames[cycle.priorityLift]}重視`;
+  els.cycleSummary.textContent = `${method} / ${target} / ${cycle.length}週 / 週${cycle.daysPerWeek}回 / ${priority}`;
+
+  const count = cycle.availableFacilityExercises.length;
+  els.facilitySummary.textContent = count ? `使用可能: ${count}種目` : "使用可能設備の追加なし";
+}
+
 function render() {
   const athlete = currentAthlete();
   renderGuideMode();
@@ -570,6 +618,7 @@ function render() {
   els.meetDateInput.value = athlete.meetDate || "";
   renderAssociationGuide(athlete);
   renderCycleInputs();
+  renderCollapseState(athlete, normalizedCycle());
   renderAthletes();
   renderStats();
   renderMetrics();
@@ -2360,6 +2409,18 @@ els.guideModeBtn.addEventListener("click", () => {
   saveState();
   render();
 });
+
+function toggleCollapsed(key) {
+  state.collapsed = { ...defaultState.collapsed, ...(state.collapsed || {}) };
+  state.collapsed[key] = !state.collapsed[key];
+  saveState();
+  render();
+}
+
+els.profileCollapseBtn.addEventListener("click", () => toggleCollapsed("profile"));
+els.cycleCollapseBtn.addEventListener("click", () => toggleCollapsed("cycle"));
+els.facilityCollapseBtn.addEventListener("click", () => toggleCollapsed("facilities"));
+
 els.facilityGrid.addEventListener("change", updateCycleFromInputs);
 document.querySelector("#prevWeekBtn").addEventListener("click", () => {
   const cycle = normalizedCycle();
