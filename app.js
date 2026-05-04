@@ -285,10 +285,374 @@ const prefectures = [
   "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"
 ];
 
+const ruleSource = {
+  label: "IPF Technical Rules / JPA公式ルール",
+  jpaUrl: "https://www.jpa-powerlifting.or.jp/rules-members.php",
+  ipfUrl: "https://www.powerlifting.sport/rules/codes/info/technical-rules",
+  lastChecked: "2026-05-04"
+};
+
+const quizCategories = {
+  squat: { label: "スクワット", short: "SQ", description: "深さ、コール、動作中の失敗を確認。" },
+  bench: { label: "ベンチプレス", short: "BP", description: "静止、コール、足や尻のルールを確認。" },
+  deadlift: { label: "デッドリフト", short: "DL", description: "ロックアウト、下ろし方、反則動作を確認。" },
+  meet: { label: "試技申請・大会進行", short: "進行", description: "試技順、重量変更、コールの流れを確認。" },
+  gear: { label: "検量・服装・ギア", short: "ギア", description: "検量、装備、当日の持ち物を確認。" },
+  manners: { label: "初出場者向けマナー", short: "初出場", description: "会場で迷わないための振る舞いを確認。" }
+};
+
+const ruleQuestions = [
+  {
+    id: "sq_depth_001",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワットで白判定になりやすい深さとして正しいものはどれ？",
+    choices: ["太ももが床と平行になればよい", "股関節側の大腿上面が膝上面より低くなる", "お尻が膝と同じ高さならよい"],
+    answerIndex: 1,
+    explanation: "スクワットは十分な深さが必要です。初心者は「平行っぽい」ではなく、股関節側が膝より低いかを動画で確認すると赤判定を減らしやすくなります。",
+    sourceSection: "スクワット / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "sq_start_002",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワットでしゃがみ始めるタイミングとして正しいものは？",
+    choices: ["ラックアウトしたらすぐしゃがむ", "主審のSquatの合図を待ってからしゃがむ", "横の審判がうなずいたらしゃがむ"],
+    answerIndex: 1,
+    explanation: "ラックアウト後に静止し、主審の合図を待ちます。合図前に動くと、重量が軽くても赤判定の原因になります。",
+    sourceSection: "スクワット / 主審の合図",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "sq_rack_003",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワットを立ち上がった後、ラックへ戻す正しい流れは？",
+    choices: ["立てたら自分の判断ですぐ戻す", "主審のRackの合図を待ってから戻す", "補助員が触れたら戻す"],
+    answerIndex: 1,
+    explanation: "立ち上がった後も試技は終わっていません。主審のRackの合図を待ってからラックへ戻します。",
+    sourceSection: "スクワット / 主審の合図",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "sq_downward_004",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワットの立ち上がり中に赤判定になりやすい動きはどれ？",
+    choices: ["少しゆっくり立つ", "立ち上がり中にバーが明確に下がる", "顔を上げる"],
+    answerIndex: 1,
+    explanation: "立ち上がり中にバーが下がると失敗判定の原因になります。粘る練習でも、下がってから立て直す癖は大会では危険です。",
+    sourceSection: "スクワット / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "sq_feet_005",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワット試技中の足の扱いで避けたいものは？",
+    choices: ["足幅を事前に決める", "試技中に足を踏み替える", "つま先の向きを整えてから合図を待つ"],
+    answerIndex: 1,
+    explanation: "試技中に足を動かす、踏み替える行為は赤判定につながります。ラックアウト後に足位置を決めたら、静止して合図を待ちましょう。",
+    sourceSection: "スクワット / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "bp_start_001",
+    category: "bench",
+    difficulty: "beginner",
+    question: "ベンチプレスでバーを胸へ下ろし始める前に必要なことは？",
+    choices: ["自分のタイミングで下ろす", "主審のStartの合図を待つ", "補助員が離れた瞬間に下ろす"],
+    answerIndex: 1,
+    explanation: "ベンチプレスは開始姿勢を作り、主審のStartの合図を待ちます。合図前の動作は白判定を逃す代表例です。",
+    sourceSection: "ベンチプレス / 主審の合図",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "bp_press_002",
+    category: "bench",
+    difficulty: "beginner",
+    question: "ベンチプレスで胸に下ろした後、押し始めるタイミングは？",
+    choices: ["胸に触れた瞬間", "主審のPressの合図の後", "自分が止まったと思った瞬間"],
+    answerIndex: 1,
+    explanation: "胸または腹部でバーを静止させ、主審のPressの合図を待ちます。普段の練習から止める癖を作ると本番で安定します。",
+    sourceSection: "ベンチプレス / 主審の合図",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "bp_rack_003",
+    category: "bench",
+    difficulty: "beginner",
+    question: "ベンチプレスで押し切った後の正しい流れは？",
+    choices: ["肘が伸びたらすぐラックに戻す", "主審のRackの合図を待つ", "セコンドの声で戻す"],
+    answerIndex: 1,
+    explanation: "押し切った後もRackの合図を待ちます。最後まで静止してコントロールする意識が白判定につながります。",
+    sourceSection: "ベンチプレス / 主審の合図",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "bp_butt_004",
+    category: "bench",
+    difficulty: "beginner",
+    question: "ベンチプレス中に赤判定になりやすいものは？",
+    choices: ["肩甲骨を寄せる", "尻がベンチから浮く", "足を床につけて踏ん張る"],
+    answerIndex: 1,
+    explanation: "試技中に尻がベンチから浮くと失敗判定の原因になります。ブリッジを強くするほど、尻の接地確認が大切です。",
+    sourceSection: "ベンチプレス / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "bp_downward_005",
+    category: "bench",
+    difficulty: "beginner",
+    question: "ベンチプレスの押し上げ中に避けたい動きは？",
+    choices: ["左右差なく押す", "バーが明確に下がる", "肘を最後まで伸ばす"],
+    answerIndex: 1,
+    explanation: "押し上げ中にバーが下がると赤判定の原因になります。粘る練習でも、下がったら失敗になりやすいことを覚えておきましょう。",
+    sourceSection: "ベンチプレス / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "dl_start_001",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "デッドリフトの引き始めで正しいものは？",
+    choices: ["主審のStartを待つ", "自分のタイミングで引き始める", "セコンドの合図だけで引く"],
+    answerIndex: 1,
+    explanation: "デッドリフトに開始合図はありません。準備ができたら制限時間内に自分のタイミングで引き始めます。",
+    sourceSection: "デッドリフト / 試技動作",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "dl_down_002",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "デッドリフトで下ろし始めるタイミングとして正しいものは？",
+    choices: ["立てたらすぐ落とす", "主審のDownの合図を待つ", "観客が拍手したら下ろす"],
+    answerIndex: 1,
+    explanation: "膝と股関節を伸ばして静止し、主審のDownの合図を待ってから下ろします。引き切った後の焦りに注意です。",
+    sourceSection: "デッドリフト / 主審の合図",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "dl_hitch_003",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "デッドリフトで赤判定になりやすいものは？",
+    choices: ["最後に胸を張る", "太ももにバーを乗せて引き上げる", "バーを体に近づける"],
+    answerIndex: 1,
+    explanation: "太ももにバーを乗せて支えるような引き上げは反則動作になりやすいです。ロックアウトまで一連の動作で引き切りましょう。",
+    sourceSection: "デッドリフト / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "dl_knees_004",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "デッドリフトのフィニッシュで大切な姿勢は？",
+    choices: ["膝と股関節が伸びて直立している", "肩が少し前でもバーが止まればよい", "膝が曲がっていても握れていればよい"],
+    answerIndex: 0,
+    explanation: "フィニッシュでは膝と股関節を伸ばし、直立した姿勢で静止する必要があります。最後のロックアウト練習は白判定に直結します。",
+    sourceSection: "デッドリフト / 試技動作",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "dl_drop_005",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "Downの合図後、バーの下ろし方として避けたいものは？",
+    choices: ["両手でコントロールして下ろす", "手を離して落とす", "最後までバーを保持する"],
+    answerIndex: 1,
+    explanation: "合図後もバーをコントロールして下ろします。床に落とす癖は大会では危険なので、練習から最後まで持つ意識を作りましょう。",
+    sourceSection: "デッドリフト / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "meet_minute_001",
+    category: "meet",
+    difficulty: "beginner",
+    question: "試技で名前が呼ばれた後、一般的に意識すべきことは？",
+    choices: ["制限時間内に試技を開始する", "好きなタイミングで何分でも準備する", "次の選手が準備できるまで待つ"],
+    answerIndex: 0,
+    explanation: "大会では進行時間があります。呼び出し後に焦らないよう、ラック高さ、ベルト、ニースリーブなどを事前に整えておきましょう。",
+    sourceSection: "大会進行 / 制限時間",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "meet_attempt_002",
+    category: "meet",
+    difficulty: "beginner",
+    question: "次の試技重量を出すときに大切なことは？",
+    choices: ["締切を過ぎても自由に変えられる", "定められた時間内に申請する", "第三試技だけ申請すればよい"],
+    answerIndex: 1,
+    explanation: "試技重量の申請には時間制限があります。初心者はセコンドや記録係と、次の重量を事前に決めておくと安心です。",
+    sourceSection: "大会進行 / 試技申請",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "meet_order_003",
+    category: "meet",
+    difficulty: "beginner",
+    question: "パワーリフティング大会の基本的な種目順として一般的なものは？",
+    choices: ["デッドリフト、ベンチ、スクワット", "スクワット、ベンチプレス、デッドリフト", "ベンチ、スクワット、デッドリフト"],
+    answerIndex: 1,
+    explanation: "基本はスクワット、ベンチプレス、デッドリフトの順です。アップの時間配分もこの順番を前提に考えます。",
+    sourceSection: "大会進行 / 種目順",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "meet_first_004",
+    category: "meet",
+    difficulty: "beginner",
+    question: "第一試技の考え方として安全なのはどれ？",
+    choices: ["当日初めて触る重量にする", "練習で安定して成功している重量にする", "必ず自己ベストより重くする"],
+    answerIndex: 1,
+    explanation: "第一試技は大会の流れを作る重量です。白判定を取れる重量から入り、第二・第三へつなげる考え方が堅実です。",
+    sourceSection: "大会進行 / 試技選択",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "meet_judge_005",
+    category: "meet",
+    difficulty: "beginner",
+    question: "大会当日の判断で最優先すべきものは？",
+    choices: ["SNSで見た解釈", "審判・大会運営の指示と大会要項", "普段のジムのローカルルール"],
+    answerIndex: 1,
+    explanation: "大会では主催団体の要項、最新ルール、審判・運営の指示が優先です。アプリは学習補助として使いましょう。",
+    sourceSection: "大会進行 / 公式判断",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_weigh_001",
+    category: "gear",
+    difficulty: "beginner",
+    question: "検量について正しい考え方はどれ？",
+    choices: ["大会要項にある時間を確認して受ける", "試技開始後でも自由に受けられる", "体重階級は当日いつでも変えられる"],
+    answerIndex: 0,
+    explanation: "検量時間や手順は大会要項で確認します。階級や受付の扱いは大会ごとに案内があるため、事前確認が大切です。",
+    sourceSection: "検量 / 大会要項",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_costume_002",
+    category: "gear",
+    difficulty: "beginner",
+    question: "大会で使う服装・ギアについて安全な準備は？",
+    choices: ["当日会場で何とかする", "大会要項と公式ルールで使用可否を確認する", "有名選手が使っていれば必ず使える"],
+    answerIndex: 1,
+    explanation: "シングレット、ベルト、リストラップ、ニースリーブなどは規定があります。大会前に必ず要項とルールを確認しましょう。",
+    sourceSection: "服装・個人装備",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_socks_003",
+    category: "gear",
+    difficulty: "beginner",
+    question: "デッドリフトで靴下に関して確認したいことは？",
+    choices: ["どんな長さでも絶対に問題ない", "デッドリフト用の規定や大会要項を確認する", "裸足なら確認不要"],
+    answerIndex: 1,
+    explanation: "デッドリフトではすねを守る装備に規定があります。靴やソックスも含め、当日使うものは早めに確認しておきましょう。",
+    sourceSection: "服装・個人装備",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_approved_004",
+    category: "gear",
+    difficulty: "beginner",
+    question: "装備品で迷ったときに一番よい対応は？",
+    choices: ["大会当日に初めて審判へ聞く", "事前に大会要項・公式情報を確認し、不明点は主催者へ確認する", "同じジムの人が使えたなら確認しない"],
+    answerIndex: 1,
+    explanation: "装備トラブルは試技前の不安になります。事前に公式情報と大会要項を見て、不明点は主催者へ確認するのが安全です。",
+    sourceSection: "服装・個人装備",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_rack_005",
+    category: "gear",
+    difficulty: "beginner",
+    question: "ラック高さ・セーフティ設定について正しい準備は？",
+    choices: ["当日の係に完全に任せる", "事前に自分の高さを把握して申告・確認する", "毎試技ランダムでよい"],
+    answerIndex: 1,
+    explanation: "ラック高さの迷いは試技時間と集中力を削ります。普段から自分の高さを記録し、大会当日は早めに確認しましょう。",
+    sourceSection: "大会進行 / ラック設定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "manners_platform_001",
+    category: "manners",
+    difficulty: "beginner",
+    question: "初出場でプラットフォームへ向かう前に大切なことは？",
+    choices: ["呼ばれてから慌てて準備する", "ベルトやリストラップを含め、すぐ試技できる状態にする", "スマホ撮影を優先する"],
+    answerIndex: 1,
+    explanation: "呼び出し後は時間が限られます。装備、チョーク、心拍を整え、試技に集中できる状態で待ちましょう。",
+    sourceSection: "大会進行 / 選手の準備",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "manners_warmup_002",
+    category: "manners",
+    difficulty: "beginner",
+    question: "アップ場での振る舞いとしてよいものは？",
+    choices: ["周囲とラックやプレートを譲り合う", "一人で長時間ラックを占有する", "使ったプレートをそのままにする"],
+    answerIndex: 0,
+    explanation: "アップ場は共有スペースです。譲り合いと片付けができると、自分も周囲も落ち着いて試合に入れます。",
+    sourceSection: "大会マナー / アップ場",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "manners_calls_003",
+    category: "manners",
+    difficulty: "beginner",
+    question: "コールを聞き逃さないために有効な準備は？",
+    choices: ["音楽を大音量で流し続ける", "試技前は主審の声と動作に集中する", "観客席だけを見る"],
+    answerIndex: 1,
+    explanation: "大会ではコールが試技の一部です。特にスクワットとベンチは、普段から合図練習をしておくと落ち着けます。",
+    sourceSection: "主審の合図 / 選手準備",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "manners_question_004",
+    category: "manners",
+    difficulty: "beginner",
+    question: "ルールや進行で不安があるときの対応として安全なのは？",
+    choices: ["自己判断で進める", "大会スタッフや審判に丁寧に確認する", "他選手の邪魔になる場所で議論する"],
+    answerIndex: 1,
+    explanation: "不明点は早めに丁寧に確認しましょう。初出場こそ、聞けることを聞いておくのが白判定への近道です。",
+    sourceSection: "大会進行 / 公式判断",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "manners_after_005",
+    category: "manners",
+    difficulty: "beginner",
+    question: "試技後の行動として望ましいものは？",
+    choices: ["すぐ次の試技申請や準備を確認する", "結果を見ずに会場を離れる", "バー周辺で長く立ち止まる"],
+    answerIndex: 0,
+    explanation: "試技後は判定を確認し、次の重量申請やアップの流れへ移ります。喜ぶ時間も大切ですが、次の準備も白判定を支えます。",
+    sourceSection: "大会進行 / 試技申請",
+    sourceUrl: ruleSource.jpaUrl
+  }
+].map((question) => ({
+  ...question,
+  sourceLabel: ruleSource.label,
+  lastChecked: ruleSource.lastChecked
+}));
+
 const defaultState = {
   currentAthleteId: "me",
   guideMode: true,
-  collapsed: { profile: false, cycle: false, facilities: false },
+  collapsed: { profile: false, cycle: false, facilities: false, quiz: false },
+  quiz: {
+    view: "top",
+    category: "",
+    queue: [],
+    index: 0,
+    selectedIndex: null,
+    answered: false,
+    correct: 0,
+    reviewMode: false,
+    stats: {}
+  },
   athletes: [
     {
       id: "me",
@@ -372,6 +736,10 @@ const els = {
   cycleSummary: document.querySelector("#cycleSummary"),
   facilityCollapseBtn: document.querySelector("#facilityCollapseBtn"),
   facilitySummary: document.querySelector("#facilitySummary"),
+  quizCollapseBtn: document.querySelector("#quizCollapseBtn"),
+  quizPanelContent: document.querySelector("#quizPanelContent"),
+  quizSummary: document.querySelector("#quizSummary"),
+  quizApp: document.querySelector("#quizApp"),
   deleteAthleteBtn: document.querySelector("#deleteAthleteBtn"),
   athleteDialog: document.querySelector("#athleteDialog"),
   athleteForm: document.querySelector("#athleteForm"),
@@ -434,6 +802,7 @@ function migrateState(rawState) {
     ...defaultState.collapsed,
     ...(migrated.collapsed || {})
   };
+  migrated.quiz = normalizeQuizState(migrated.quiz);
   migrated.athletes = (migrated.athletes || []).map((athlete) => ({
     ...athlete,
     sex: ["male", "female"].includes(athlete.sex) ? athlete.sex : "male",
@@ -486,6 +855,37 @@ function migrateState(rawState) {
     })
   }));
   return migrated;
+}
+
+function normalizeQuizState(quiz = {}) {
+  const validIds = new Set(ruleQuestions.map((question) => question.id));
+  const stats = Object.fromEntries(
+    Object.entries(quiz.stats || {})
+      .filter(([id]) => validIds.has(id))
+      .map(([id, value]) => [
+        id,
+        {
+          attempts: Math.max(0, Number(value.attempts || 0)),
+          correct: Math.max(0, Number(value.correct || 0)),
+          wrong: Math.max(0, Number(value.wrong || 0)),
+          lastCorrect: value.lastCorrect === true
+        }
+      ])
+  );
+  const queue = Array.isArray(quiz.queue) ? quiz.queue.filter((id) => validIds.has(id)) : [];
+  return {
+    ...structuredClone(defaultState.quiz),
+    ...quiz,
+    view: ["top", "categories", "question", "result"].includes(quiz.view) ? quiz.view : "top",
+    category: quizCategories[quiz.category] ? quiz.category : "",
+    queue,
+    index: Math.max(0, Math.min(Number(quiz.index || 0), Math.max(0, queue.length - 1))),
+    selectedIndex: Number.isInteger(quiz.selectedIndex) ? quiz.selectedIndex : null,
+    answered: quiz.answered === true,
+    correct: Math.max(0, Number(quiz.correct || 0)),
+    reviewMode: quiz.reviewMode === true,
+    stats
+  };
 }
 
 function saveState() {
@@ -570,6 +970,7 @@ function renderCollapseState(athlete = currentAthlete(), cycle = normalizedCycle
   applyCollapse("profile", els.profilePanelContent, els.profileCollapseBtn, "プロフィール");
   applyCollapse("cycle", els.cyclePanelContent, els.cycleCollapseBtn, "PRサイクル設計");
   applyCollapse("facilities", els.facilityGrid, els.facilityCollapseBtn, "設備依存種目");
+  applyCollapse("quiz", els.quizPanelContent, els.quizCollapseBtn, "白判定クイズ");
   renderCollapseSummaries(athlete, cycle);
 }
 
@@ -598,6 +999,14 @@ function renderCollapseSummaries(athlete, cycle) {
 
   const count = cycle.availableFacilityExercises.length;
   els.facilitySummary.textContent = count ? `使用可能: ${count}種目` : "使用可能設備の追加なし";
+  if (els.quizSummary) {
+    const attempted = Object.values(state.quiz?.stats || {}).filter((stat) => Number(stat.attempts || 0) > 0).length;
+    const wrong = quizWrongQuestions().length;
+    const correct = Object.values(state.quiz?.stats || {}).reduce((sum, stat) => sum + Number(stat.correct || 0), 0);
+    const total = Object.values(state.quiz?.stats || {}).reduce((sum, stat) => sum + Number(stat.attempts || 0), 0);
+    const rate = total ? Math.round((correct / total) * 100) : 0;
+    els.quizSummary.textContent = `進捗 ${attempted}/${ruleQuestions.length}問 / 正解率 ${rate}% / 復習 ${wrong}問`;
+  }
 }
 
 function render() {
@@ -627,6 +1036,7 @@ function render() {
   renderDataStatus();
   renderHistory();
   renderPlan();
+  renderQuiz();
   drawChart();
 }
 
@@ -2100,6 +2510,243 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function quizQuestionById(id) {
+  return ruleQuestions.find((question) => question.id === id);
+}
+
+function quizQuestionsForCategory(category) {
+  return ruleQuestions.filter((question) => question.category === category).map((question) => question.id);
+}
+
+function quizWrongQuestions() {
+  return ruleQuestions.filter((question) => state.quiz?.stats?.[question.id]?.lastCorrect === false);
+}
+
+function quizScoreLabel(correct, total) {
+  const ratio = total ? correct / total : 0;
+  if (total && correct === total) return "白3つ";
+  if (ratio >= 0.8) return "白2つ";
+  if (ratio >= 0.5) return "白1つ";
+  return "大会前アップ中";
+}
+
+function quizProgressByCategory(category) {
+  const ids = quizQuestionsForCategory(category);
+  const answered = ids.filter((id) => Number(state.quiz?.stats?.[id]?.attempts || 0) > 0).length;
+  const correct = ids.filter((id) => state.quiz?.stats?.[id]?.lastCorrect === true).length;
+  return { answered, correct, total: ids.length };
+}
+
+function resetQuizSession(view = "top") {
+  state.quiz = {
+    ...normalizeQuizState(state.quiz),
+    view,
+    category: "",
+    queue: [],
+    index: 0,
+    selectedIndex: null,
+    answered: false,
+    correct: 0,
+    reviewMode: false
+  };
+}
+
+function startQuiz(category) {
+  const queue = quizQuestionsForCategory(category);
+  state.quiz = {
+    ...normalizeQuizState(state.quiz),
+    view: "question",
+    category,
+    queue,
+    index: 0,
+    selectedIndex: null,
+    answered: false,
+    correct: 0,
+    reviewMode: false
+  };
+  saveState();
+  render();
+}
+
+function startWrongReview() {
+  const queue = quizWrongQuestions().map((question) => question.id);
+  if (!queue.length) return;
+  state.quiz = {
+    ...normalizeQuizState(state.quiz),
+    view: "question",
+    category: "",
+    queue,
+    index: 0,
+    selectedIndex: null,
+    answered: false,
+    correct: 0,
+    reviewMode: true
+  };
+  saveState();
+  render();
+}
+
+function answerQuiz(choiceIndex) {
+  const quiz = normalizeQuizState(state.quiz);
+  if (quiz.answered) return;
+  const question = quizQuestionById(quiz.queue[quiz.index]);
+  if (!question) return;
+  const isCorrect = choiceIndex === question.answerIndex;
+  const previous = quiz.stats[question.id] || { attempts: 0, correct: 0, wrong: 0, lastCorrect: false };
+  quiz.stats[question.id] = {
+    attempts: Number(previous.attempts || 0) + 1,
+    correct: Number(previous.correct || 0) + (isCorrect ? 1 : 0),
+    wrong: Number(previous.wrong || 0) + (isCorrect ? 0 : 1),
+    lastCorrect: isCorrect
+  };
+  state.quiz = {
+    ...quiz,
+    selectedIndex: choiceIndex,
+    answered: true,
+    correct: quiz.correct + (isCorrect ? 1 : 0)
+  };
+  saveState();
+  render();
+}
+
+function nextQuizQuestion() {
+  const quiz = normalizeQuizState(state.quiz);
+  if (quiz.index + 1 >= quiz.queue.length) {
+    state.quiz = { ...quiz, view: "result", selectedIndex: null, answered: false };
+  } else {
+    state.quiz = { ...quiz, index: quiz.index + 1, selectedIndex: null, answered: false };
+  }
+  saveState();
+  render();
+}
+
+function renderQuiz() {
+  if (!els.quizApp) return;
+  state.quiz = normalizeQuizState(state.quiz);
+  if (state.quiz.view === "categories") {
+    renderQuizCategories();
+  } else if (state.quiz.view === "question") {
+    renderQuizQuestion();
+  } else if (state.quiz.view === "result") {
+    renderQuizResult();
+  } else {
+    renderQuizTop();
+  }
+}
+
+function renderQuizTop() {
+  const stats = Object.values(state.quiz.stats || {});
+  const attempted = stats.filter((stat) => Number(stat.attempts || 0) > 0).length;
+  const totalAttempts = stats.reduce((sum, stat) => sum + Number(stat.attempts || 0), 0);
+  const correct = stats.reduce((sum, stat) => sum + Number(stat.correct || 0), 0);
+  const rate = totalAttempts ? Math.round((correct / totalAttempts) * 100) : 0;
+  const wrong = quizWrongQuestions().length;
+  els.quizApp.innerHTML = `
+    <div class="quiz-top">
+      <div class="quiz-score-strip">
+        <div><span>進捗</span><strong>${attempted}/${ruleQuestions.length}</strong></div>
+        <div><span>正解率</span><strong>${rate}%</strong></div>
+        <div><span>復習</span><strong>${wrong}問</strong></div>
+      </div>
+      <p class="quiz-guide">大会直前だけでなく、普段の練習から「何が白判定で、何が赤判定になりやすいか」を3択で確認できます。</p>
+      <p class="quiz-disclaimer quiz-guide">本クイズは、パワーリフティング競技ルールの理解を補助するための学習機能です。実際の大会では、主催団体の大会要項、最新ルールブック、審判・大会運営の指示を必ず優先してください。</p>
+      <div class="quiz-actions">
+        <button class="primary-button inline" type="button" data-quiz-action="categories">カテゴリから選ぶ</button>
+        <button class="text-button" type="button" data-quiz-action="review" ${wrong ? "" : "disabled"}>間違えた問題を復習</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderQuizCategories() {
+  els.quizApp.innerHTML = `
+    <div class="quiz-subhead">
+      <button class="text-button compact" type="button" data-quiz-action="top">戻る</button>
+      <p>カテゴリを選択</p>
+    </div>
+    <div class="quiz-category-grid">
+      ${Object.entries(quizCategories).map(([id, category]) => {
+        const progress = quizProgressByCategory(id);
+        return `
+          <button class="quiz-category-card" type="button" data-quiz-action="start" data-category="${escapeHtml(id)}">
+            <span>${escapeHtml(category.short)}</span>
+            <strong>${escapeHtml(category.label)}</strong>
+            <small>${escapeHtml(category.description)}</small>
+            <em>${progress.answered}/${progress.total}問 / 最新正解 ${progress.correct}問</em>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderQuizQuestion() {
+  const quiz = normalizeQuizState(state.quiz);
+  const question = quizQuestionById(quiz.queue[quiz.index]);
+  if (!question) {
+    resetQuizSession("top");
+    renderQuizTop();
+    return;
+  }
+  const category = quizCategories[question.category];
+  const isCorrect = quiz.selectedIndex === question.answerIndex;
+  els.quizApp.innerHTML = `
+    <div class="quiz-question-card">
+      <div class="quiz-subhead">
+        <button class="text-button compact" type="button" data-quiz-action="${quiz.reviewMode ? "top" : "categories"}">戻る</button>
+        <p>${quiz.reviewMode ? "復習" : escapeHtml(category.label)} ${quiz.index + 1}/${quiz.queue.length}</p>
+      </div>
+      <div class="quiz-question-title">
+        <span class="quiz-badge">${escapeHtml(category.short)}</span>
+        <h3>${escapeHtml(question.question)}</h3>
+      </div>
+      <div class="quiz-choice-list">
+        ${question.choices.map((choice, index) => {
+          const selected = quiz.selectedIndex === index;
+          const correct = quiz.answered && index === question.answerIndex;
+          const wrong = quiz.answered && selected && index !== question.answerIndex;
+          const className = ["quiz-choice", correct ? "correct" : "", wrong ? "wrong" : ""].filter(Boolean).join(" ");
+          return `
+            <button class="${className}" type="button" data-choice="${index}" ${quiz.answered ? "disabled" : ""}>
+              <span>${index + 1}</span>
+              <strong>${escapeHtml(choice)}</strong>
+            </button>
+          `;
+        }).join("")}
+      </div>
+      ${quiz.answered ? `
+        <div class="quiz-feedback ${isCorrect ? "correct" : "wrong"}">
+          <strong>${isCorrect ? "白判定です。" : "惜しい！本番前に知れて白判定です。"}</strong>
+          <p>${escapeHtml(question.explanation)}</p>
+          <div class="quiz-source">
+            <span>${escapeHtml(question.sourceLabel)} / ${escapeHtml(question.sourceSection)} / 最終確認 ${escapeHtml(question.lastChecked)}</span>
+            <a href="${escapeHtml(question.sourceUrl)}" target="_blank" rel="noopener">公式情報を確認</a>
+          </div>
+        </div>
+        <button class="primary-button" type="button" data-quiz-action="next">${quiz.index + 1 >= quiz.queue.length ? "結果を見る" : "次の問題へ"}</button>
+      ` : ""}
+    </div>
+  `;
+}
+
+function renderQuizResult() {
+  const quiz = normalizeQuizState(state.quiz);
+  const total = quiz.queue.length;
+  const label = quizScoreLabel(quiz.correct, total);
+  els.quizApp.innerHTML = `
+    <div class="quiz-result">
+      <span>${escapeHtml(label)}</span>
+      <h3>${quiz.correct}/${total} 正解</h3>
+      <p>${quiz.correct === total ? "白3つ。かなり落ち着いて試合に入れそうです。" : "ここで確認できた分だけ、本番の赤判定を減らせます。"}</p>
+      <div class="quiz-actions">
+        <button class="primary-button inline" type="button" data-quiz-action="categories">別カテゴリへ</button>
+        <button class="text-button" type="button" data-quiz-action="review" ${quizWrongQuestions().length ? "" : "disabled"}>間違えた問題を復習</button>
+        <button class="text-button" type="button" data-quiz-action="top">トップへ</button>
+      </div>
+    </div>
+  `;
+}
+
 function renderSetRows(copyFirst = false) {
   const count = Math.max(1, Math.min(20, Number(els.setsInput.value || 1)));
   const existing = Array.from(els.setRows.querySelectorAll(".set-row")).map((row) => ({
@@ -2420,6 +3067,33 @@ function toggleCollapsed(key) {
 els.profileCollapseBtn.addEventListener("click", () => toggleCollapsed("profile"));
 els.cycleCollapseBtn.addEventListener("click", () => toggleCollapsed("cycle"));
 els.facilityCollapseBtn.addEventListener("click", () => toggleCollapsed("facilities"));
+els.quizCollapseBtn?.addEventListener("click", () => toggleCollapsed("quiz"));
+
+els.quizApp?.addEventListener("click", (event) => {
+  const choice = event.target.closest("[data-choice]");
+  if (choice) {
+    answerQuiz(Number(choice.dataset.choice));
+    return;
+  }
+  const actionButton = event.target.closest("[data-quiz-action]");
+  if (!actionButton) return;
+  const action = actionButton.dataset.quizAction;
+  if (action === "top") {
+    resetQuizSession("top");
+    saveState();
+    render();
+  } else if (action === "categories") {
+    resetQuizSession("categories");
+    saveState();
+    render();
+  } else if (action === "start") {
+    startQuiz(actionButton.dataset.category);
+  } else if (action === "review") {
+    startWrongReview();
+  } else if (action === "next") {
+    nextQuizQuestion();
+  }
+});
 
 els.facilityGrid.addEventListener("change", updateCycleFromInputs);
 document.querySelector("#prevWeekBtn").addEventListener("click", () => {
