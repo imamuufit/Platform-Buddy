@@ -1089,6 +1089,48 @@ canvas {
   margin-bottom: 4px;
 }
 
+.plan-day {
+  padding: 0;
+  overflow: hidden;
+}
+
+.day-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.day-summary::-webkit-details-marker {
+  display: none;
+}
+
+.day-summary div {
+  display: grid;
+  gap: 5px;
+}
+
+.day-summary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.plan-day[open] .history-open {
+  transform: rotate(180deg);
+}
+
+.plan-day .exercise-list {
+  border-top: 1px solid var(--line);
+  background: #f8fafc;
+  padding: 10px;
+}
+
 .exercise-list {
   display: grid;
   gap: 8px;
@@ -1164,6 +1206,30 @@ canvas {
   grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
   gap: 8px;
   align-items: end;
+}
+
+.actual-set-list {
+  display: grid;
+  gap: 7px;
+}
+
+.actual-set-row {
+  display: grid;
+  grid-template-columns: 42px repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+
+.actual-set-row strong {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.actual-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .actual-grid label {
@@ -1315,6 +1381,21 @@ canvas {
   border-top: 1px solid var(--line);
   background: #f8fafc;
   padding: 10px;
+}
+
+.history-source-section {
+  display: grid;
+  gap: 8px;
+}
+
+.history-source-section h3 {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.lift-badge.plan-source {
+  background: var(--accent);
 }
 
 .history-day-details .history-item {
@@ -1760,12 +1841,23 @@ dialog::backdrop {
     gap: 6px;
   }
 
+  .actual-set-row {
+    grid-template-columns: 38px repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .actual-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
   .set-detail-head {
     display: grid;
   }
 
   .history-item,
-  .history-day summary {
+  .history-day summary,
+  .day-summary {
     grid-template-columns: 1fr;
   }
 

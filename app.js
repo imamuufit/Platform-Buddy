@@ -1176,6 +1176,7 @@ function migrateState(rawState) {
         const meta = exerciseMeta(log.exerciseId);
         return {
           ...log,
+          source: log.source || (String(log.note || "").startsWith("予定RPE") ? "plan" : "log"),
           exerciseName: log.exerciseName || log.exercise || meta.name,
           badge: log.badge || meta.badge
         };
@@ -1184,6 +1185,7 @@ function migrateState(rawState) {
       const meta = exerciseMeta(exerciseId);
       return {
         ...log,
+        source: log.source || (String(log.note || "").startsWith("予定RPE") ? "plan" : "log"),
         category: log.lift === "accessory" ? "custom" : "power",
         exerciseId,
         exerciseName: log.exercise || meta.name,
@@ -1709,7 +1711,8 @@ function renderHistory() {
           <span class="history-open">▾</span>
         </summary>
         <div class="history-day-details">
-          ${dayLogs.map((log) => historyLogMarkup(log)).join("")}
+          ${historySectionMarkup("PLAN実績", dayLogs.filter((log) => logSource(log) === "plan"))}
+          ${historySectionMarkup("LOG記録", dayLogs.filter((log) => logSource(log) === "log"))}
         </div>
       </details>
     `;
@@ -1726,6 +1729,10 @@ function groupLogsByDate(logs) {
     date,
     logs: dayLogs.sort((a, b) => historyLogRank(b) - historyLogRank(a) || e1rm(b.weight, b.reps) - e1rm(a.weight, a.reps))
   }));
+}
+
+function logSource(log) {
+  return log.source === "plan" || String(log.note || "").startsWith("予定RPE") ? "plan" : "log";
 }
 
 function historyLogRank(log) {
@@ -1751,7 +1758,7 @@ function historyLogMarkup(log) {
     return `
       <article class="history-item">
         <div>
-          <span class="lift-badge">${badge}</span>
+          <span class="lift-badge ${logSource(log) === "plan" ? "plan-source" : ""}">${logSource(log) === "plan" ? "PLAN" : badge}</span>
           <h2>${escapeHtml(name)} ${log.weight}kg x ${log.reps} x ${log.sets}</h2>
           <p class="history-meta">${log.date}${rpe} / e1RM ${e1rm(log.weight, log.reps)}kg</p>
           ${setDetails}
@@ -1763,6 +1770,16 @@ function historyLogMarkup(log) {
         </div>
       </article>
     `;
+}
+
+function historySectionMarkup(title, logs) {
+  if (!logs.length) return "";
+  return `
+    <section class="history-source-section">
+      <h3>${title}</h3>
+      ${logs.map((log) => historyLogMarkup(log)).join("")}
+    </section>
+  `;
 }
 
 function setDetailsMarkup(log) {
@@ -1790,17 +1807,24 @@ function renderPlan() {
   }
 
   const insight = planInsight(cycle);
-  els.planList.innerHTML = `${insight}${weeklyTemplate(cycle).map((day, index) => `
-    <article class="day-card">
-      <div class="day-title">
-        <span class="lift-badge">Day ${index + 1}</span>
-        <h2>${day.title}</h2>
-      </div>
-      <div class="exercise-list">
-        ${day.items.map((item, itemIndex) => exerciseLine(item, cycle, index, itemIndex)).join("")}
-      </div>
-    </article>
-  `).join("")}`;
+  els.planList.innerHTML = `${insight}${weeklyTemplate(cycle).map((day, index) => {
+    const mainItems = day.items.filter((item) => item.lift || item.kind === "accessory").slice(0, 3).map((item) => item.name).join(" / ");
+    return `
+      <details class="day-card plan-day" ${index === 0 ? "open" : ""}>
+        <summary class="day-summary">
+          <div>
+            <span class="lift-badge">Day ${index + 1}</span>
+            <h2>${day.title}</h2>
+            <p>${escapeHtml(mainItems || "メニューを確認")}</p>
+          </div>
+          <span class="history-open">▾</span>
+        </summary>
+        <div class="exercise-list">
+          ${day.items.map((item, itemIndex) => exerciseLine(item, cycle, index, itemIndex)).join("")}
+        </div>
+      </details>
+    `;
+  }).join("")}`;
 }
 
 function renderRpeCoach(cycle, phase) {
@@ -2180,14 +2204,16 @@ function liftBalance(cycle = normalizedCycle(), athlete = currentAthlete()) {
 function exerciseLine(item, cycle, dayIndex = 0, itemIndex = 0) {
   if (item.kind === "method") {
     const note = guideEnabled() && item.note ? `<p class="guide-note">${escapeHtml(item.note)}</p>` : "";
-    return `<div class="exercise-row"><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.work)}</span>${note}${actualInputBlock(item, cycle, item.work, item.note, dayIndex, itemIndex)}</div>`;
+    const actual = shouldShowActualInput(item) ? actualInputBlock(item, cycle, item.work, item.note, dayIndex, itemIndex) : "";
+    return `<div class="exercise-row"><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.work)}</span>${note}${actual}</div>`;
   }
   if (item.kind === "accessory") {
     const badge = item.exerciseId && equipmentLabel(item.exerciseId)
       ? `<em class="equipment-tag">${equipmentLabel(item.exerciseId)}</em>`
       : "";
     const note = guideEnabled() && item.note ? `<p class="guide-note">${item.note}</p>` : "";
-    return `<div class="exercise-row"><strong>${escapeHtml(item.name)}${badge}</strong><span>${item.work}</span>${note}</div>`;
+    const actual = shouldShowActualInput(item) ? actualInputBlock(item, cycle, item.work, item.note, dayIndex, itemIndex) : "";
+    return `<div class="exercise-row"><strong>${escapeHtml(item.name)}${badge}</strong><span>${item.work}</span>${note}${actual}</div>`;
   }
   const max = Number(cycle.maxes[item.lift] || bestE1rm(item.lift) || 0);
   const prescription = prescriptionForWeek(item.lift, max, cycle.week, cycle.length, cycle.daysPerWeek, item.variant, cycle.priorityLift, cycle.buddyLevel);
@@ -2195,26 +2221,44 @@ function exerciseLine(item, cycle, dayIndex = 0, itemIndex = 0) {
   return `<div class="exercise-row"><strong>${item.name}</strong><span>${prescription.title}</span>${detail}${actualInputBlock(item, cycle, prescription.title, prescription.detail, dayIndex, itemIndex)}</div>`;
 }
 
+function shouldShowActualInput(item) {
+  const text = `${item.name || ""} ${item.work || ""} ${item.note || ""}`;
+  return !/(完全休養|休む|散歩|ストレッチ|コンディショニング)/.test(text);
+}
+
 function actualInputBlock(item, cycle, planText, detail, dayIndex, itemIndex) {
   const target = plannedTopSet(planText, detail);
-  const key = planFeedbackKey(cycle, dayIndex, itemIndex, item.lift, item.name);
+  const key = planFeedbackKey(cycle, dayIndex, itemIndex, item.lift || item.exerciseId || "custom", item.name);
   const saved = currentAthlete().rpeFeedback?.[key];
   const previous = previousFeedbackMarkup(cycle, item);
   const feedback = saved ? feedbackMarkup(saved) : "";
+  const rows = saved?.setDetails?.length ? saved.setDetails : [{ weight: saved?.weight ?? target.weight ?? "", reps: saved?.reps ?? target.reps ?? "", rpe: saved?.rpe ?? "" }];
   return `
-    <div class="actual-box" data-plan-key="${escapeHtml(key)}" data-lift="${escapeHtml(item.lift || "custom")}" data-exercise="${escapeHtml(item.name)}" data-planned-rpe="${target.rpe || ""}">
+    <div class="actual-box" data-plan-key="${escapeHtml(key)}" data-lift="${escapeHtml(item.lift || item.exerciseId || "custom")}" data-source="plan" data-exercise="${escapeHtml(item.name)}" data-planned-rpe="${target.rpe || ""}" data-plan-text="${escapeHtml(planText)}">
       <div class="actual-title">
         <strong>実績入力</strong>
         <span>${target.rpe ? `予定 @${target.rpe}` : "RPE判定"}</span>
       </div>
       ${previous}
-      <div class="actual-grid">
-        <label>kg<input class="actual-weight" inputmode="decimal" type="number" min="0" step="0.5" value="${saved?.weight ?? target.weight ?? ""}"></label>
-        <label>回数<input class="actual-reps" inputmode="numeric" type="number" min="1" step="1" value="${saved?.reps ?? target.reps ?? ""}"></label>
-        <label>RPE<input class="actual-rpe" inputmode="decimal" type="number" min="5" max="10" step="0.5" value="${saved?.rpe ?? ""}"></label>
+      <div class="actual-set-list">
+        ${rows.map((row, index) => actualSetRowMarkup(row, index)).join("")}
+      </div>
+      <div class="actual-actions">
+        <button class="text-button compact actual-add-set" type="button">セット追加</button>
         <button class="text-button compact actual-save" type="button">記録</button>
       </div>
       ${feedback}
+    </div>
+  `;
+}
+
+function actualSetRowMarkup(row = {}, index = 0) {
+  return `
+    <div class="actual-set-row">
+      <strong>S${index + 1}</strong>
+      <label>kg<input class="actual-weight" inputmode="decimal" type="number" min="0" step="0.5" value="${escapeHtml(row.weight ?? "")}"></label>
+      <label>回数<input class="actual-reps" inputmode="numeric" type="number" min="1" step="1" value="${escapeHtml(row.reps ?? "")}"></label>
+      <label>RPE<input class="actual-rpe" inputmode="decimal" type="number" min="5" max="10" step="0.5" value="${escapeHtml(row.rpe ?? "")}"></label>
     </div>
   `;
 }
@@ -3351,24 +3395,41 @@ els.alternativePanel.addEventListener("click", (event) => {
 });
 
 els.planList.addEventListener("click", (event) => {
+  const addButton = event.target.closest(".actual-add-set");
+  if (addButton) {
+    const list = addButton.closest(".actual-box").querySelector(".actual-set-list");
+    list.insertAdjacentHTML("beforeend", actualSetRowMarkup({}, list.querySelectorAll(".actual-set-row").length));
+    return;
+  }
   const button = event.target.closest(".actual-save");
   if (!button) return;
   const box = button.closest(".actual-box");
-  const weight = Number(box.querySelector(".actual-weight").value);
-  const reps = Number(box.querySelector(".actual-reps").value);
-  const rpe = Number(box.querySelector(".actual-rpe").value);
-  if (!weight || !reps || !rpe) return;
+  const setDetails = Array.from(box.querySelectorAll(".actual-set-row"))
+    .map((row, index) => ({
+      set: index + 1,
+      weight: Number(row.querySelector(".actual-weight").value),
+      reps: Number(row.querySelector(".actual-reps").value),
+      rpe: row.querySelector(".actual-rpe").value ? Number(row.querySelector(".actual-rpe").value) : ""
+    }))
+    .filter((set) => set.weight && set.reps);
+  if (!setDetails.length) return;
+  const topSet = setDetails.reduce((best, set) => e1rm(set.weight, set.reps) > e1rm(best.weight, best.reps) ? set : best, setDetails[0]);
+  const rpeSet = [...setDetails].reverse().find((set) => set.rpe) || topSet;
+  const weight = topSet.weight;
+  const reps = topSet.reps;
+  const rpe = rpeSet.rpe ? Number(rpeSet.rpe) : "";
 
   const athlete = currentAthlete();
   const lift = box.dataset.lift;
   const exerciseName = box.dataset.exercise;
   const plannedRpe = Number(box.dataset.plannedRpe || 0);
-  const feedback = rpeAdjustmentFeedback(plannedRpe, rpe);
+  const feedback = plannedRpe && rpe ? rpeAdjustmentFeedback(plannedRpe, rpe) : { status: "ok", message: "実績を保存しました。次回の重量判断に使えます。" };
   athlete.rpeFeedback = athlete.rpeFeedback || {};
   athlete.rpeFeedback[box.dataset.planKey] = {
     weight,
     reps,
     rpe,
+    setDetails,
     plannedRpe,
     lift,
     exerciseName,
@@ -3376,6 +3437,7 @@ els.planList.addEventListener("click", (event) => {
     message: feedback.message
   };
   const meta = exerciseMeta(lift);
+  athlete.logs = athlete.logs.filter((log) => log.planKey !== box.dataset.planKey);
   athlete.logs.push({
     id: crypto.randomUUID(),
     date: today(),
@@ -3385,8 +3447,12 @@ els.planList.addEventListener("click", (event) => {
     badge: meta.badge,
     weight,
     reps,
-    sets: 1,
+    sets: setDetails.length,
     rpe,
+    setDetails,
+    source: "plan",
+    planKey: box.dataset.planKey,
+    planText: box.dataset.planText || "",
     note: plannedRpe ? `予定RPE ${plannedRpe} / ${feedback.message}` : feedback.message
   });
   saveState();
@@ -3430,6 +3496,7 @@ els.logForm.addEventListener("submit", (event) => {
     sets: setDetails.length,
     rpe: lastRpe,
     setDetails,
+    source: "log",
     note: els.noteInput.value.trim()
   });
   saveState();
