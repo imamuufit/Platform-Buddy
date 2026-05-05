@@ -1093,6 +1093,10 @@ function defaultCycle() {
     priorityLift: "total",
     experienceLevel: "beginner",
     week: 1,
+    recoveryMode: false,
+    recoveryForWeek: null,
+    recoveryFromWeek: null,
+    pendingRecoveryAlert: null,
     availableFacilityExercises: [],
     maxes: { squat: "", bench: "", deadlift: "" }
   };
@@ -1793,6 +1797,14 @@ function setDetailsMarkup(log) {
 
 function renderPlan() {
   const cycle = normalizedCycle();
+  if (cycle.pendingRecoveryAlert) {
+    renderRecoveryAlert(cycle);
+    return;
+  }
+  if (cycle.recoveryMode) {
+    renderRecoveryWeek(cycle);
+    return;
+  }
   const phase = cyclePhase(cycle.week, cycle.length, cycle.programMethod);
   const levelLabel = cycle.programMethod === "platform" ? ` / ${cycle.buddyLevel === "level2" ? "Buddy Lv2" : "Buddy Lv1"}` : "";
   els.cyclePhaseTitle.textContent = `${cycle.length}週中 ${cycle.week}週目 / ${phase.name}${levelLabel}`;
@@ -1844,6 +1856,7 @@ function renderRpeCoach(cycle, phase) {
       <h3>RPEはきつさ、RIRは残り回数</h3>
     </div>
     <p>${guide}</p>
+    <p class="rpe-principle">RPEはアプリが決める数字ではなく、自分の身体感覚を観察して育てるものです。補正は命令ではなく判断材料です。迷った日は重量よりフォームと安全を優先してください。</p>
     <div class="rpe-scale">
       <span><strong>RPE 6</strong> RIR 4目安</span>
       <span><strong>RPE 7</strong> RIR 3目安</span>
@@ -1851,6 +1864,121 @@ function renderRpeCoach(cycle, phase) {
       <span><strong>RPE 9</strong> RIR 1目安</span>
     </div>
   `;
+}
+
+function renderRecoveryAlert(cycle) {
+  const alert = cycle.pendingRecoveryAlert;
+  const nextWeek = alert.nextWeek || Math.min(cycle.week + 1, cycle.length);
+  els.cyclePhaseTitle.textContent = `Buddy Alert / W${nextWeek}前の進行判断`;
+  els.cyclePhaseNote.textContent = "";
+  els.rpeCoachCard.innerHTML = "";
+  renderProjections(cycle);
+  els.planList.innerHTML = `
+    <article class="plan-card recovery-alert-card">
+      <span class="recommended-badge">進行を止める候補</span>
+      <h2>このままW${nextWeek}へ進む前に、デロード週を挟む候補です。</h2>
+      <p>前週のPLAN実績で、予定よりRPEが高い記録が続いています。進行を止める判断もトレーニングの一部です。</p>
+      <div class="recovery-reasons">
+        ${(alert.reasons || []).map((reason) => `<span>${escapeHtml(reason)}</span>`).join("")}
+      </div>
+      <div class="recovery-actions">
+        <button class="primary-button inline" type="button" data-recovery-action="start">デロード週を実施する</button>
+        <button class="text-button" type="button" data-recovery-action="skip">通常通りW${nextWeek}へ進む</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderRecoveryWeek(cycle) {
+  const targetWeek = cycle.recoveryForWeek || Math.min(cycle.week + 1, cycle.length);
+  els.cyclePhaseTitle.textContent = `W${targetWeek}前のデロード週`;
+  els.cyclePhaseNote.textContent = guideEnabled()
+    ? "この週は強くなるために追い込む週ではなく、次に進むために回復する週です。表示された上限重量を超えず、RPE6以下でフォーム確認を優先してください。"
+    : "";
+  els.rpeCoachCard.innerHTML = "";
+  renderProjections(cycle);
+  els.planList.innerHTML = `
+    <article class="plan-card recovery-alert-card">
+      <span class="recommended-badge">デロード中</span>
+      <h2>今日は上限重量を超えないでください。</h2>
+      <p>目的は疲労を抜く、フォームを確認する、痛みや違和感を見直すことです。補助種目は通常の半分、痛みがあれば中止してください。</p>
+      <button class="primary-button inline" type="button" data-recovery-action="finish">デロードを終えてW${targetWeek}へ進む</button>
+    </article>
+    ${recoveryWeekTemplate(cycle).map((day, index) => `
+      <details class="day-card plan-day" ${index === 0 ? "open" : ""}>
+        <summary class="day-summary">
+          <div>
+            <span class="lift-badge">Day ${index + 1}</span>
+            <h2>${day.title}</h2>
+            <p>${day.summary}</p>
+          </div>
+          <span class="history-open">▾</span>
+        </summary>
+        <div class="exercise-list">
+          ${day.items.map((item) => `
+            <div class="exercise-row recovery-row">
+              <strong>${escapeHtml(item.name)}</strong>
+              <span>${escapeHtml(item.work)}</span>
+              <p class="guide-note">${escapeHtml(item.note)}</p>
+            </div>
+          `).join("")}
+        </div>
+      </details>
+    `).join("")}
+  `;
+}
+
+function recoveryWeekTemplate(cycle) {
+  const max = (lift, percent) => {
+    const base = Number(cycle.maxes[lift] || bestE1rm(lift) || 0);
+    return base ? `${roundToIncrement(base * percent, 2.5)}kg` : "1RM未設定";
+  };
+  if (cycle.planTarget === "bench_only") {
+    return [
+      {
+        title: "BP フォーム確認",
+        summary: "止め、コール、尻の接地を確認。RPE6以下。",
+        items: [
+          { name: "ベンチプレス", work: `上限 ${max("bench", 0.65)}まで / 3回 x 3セット`, note: "この重量を超えない。Start / Press / Rack を待つ練習。" },
+          { name: "上背部補助", work: "通常の半分 / RPE6以下", note: "追い込まず、肩甲骨の動きだけ確認。" }
+        ]
+      },
+      {
+        title: "BP 軽めボリューム",
+        summary: "速く、軽く、フォーム再現。",
+        items: [
+          { name: "ベンチプレス", work: `上限 ${max("bench", 0.6)}まで / 5回 x 2セット`, note: "軽く感じても上限を超えない。" },
+          { name: "腕・肩補助", work: "通常の半分 / RPE6以下", note: "痛みや違和感があれば中止。" }
+        ]
+      }
+    ];
+  }
+  return [
+    {
+      title: "SQ / BP フォーム確認",
+      summary: "しゃがみ、止め、コールを確認。RPE6以下。",
+      items: [
+        { name: "スクワット", work: `上限 ${max("squat", 0.65)}まで / 3回 x 3セット`, note: "この重量を超えない。深さとラック動作を確認。" },
+        { name: "ベンチプレス", work: `上限 ${max("bench", 0.65)}まで / 3回 x 3セット`, note: "Start / Press / Rack を待つ練習。尻浮きに注意。" }
+      ]
+    },
+    {
+      title: "DL / BP 軽め",
+      summary: "引き切りと下ろし方を確認。デッドは低め上限。",
+      items: [
+        { name: "デッドリフト", work: `上限 ${max("deadlift", 0.6)}まで / 3回 x 2セット`, note: "Down合図後までコントロール。床に落とさない。" },
+        { name: "ベンチプレス", work: `上限 ${max("bench", 0.6)}まで / 5回 x 2セット`, note: "軽く、速く、フォームだけ確認。" }
+      ]
+    },
+    {
+      title: "全身軽め / 可動域確認",
+      summary: "通常の半分。追い込まない。",
+      items: [
+        { name: "BIG3 テクニック", work: "50〜60% / 3回 x 2セット", note: "痛みや違和感があれば中止。疲労を抜くことが目的。" },
+        { name: "補助種目", work: "通常の半分 / RPE6以下", note: "パンプ狙いで追い込まない。動きの確認だけ。" }
+      ]
+    }
+  ];
 }
 
 function activePlanLiftIds(cycle = normalizedCycle()) {
@@ -2061,6 +2189,10 @@ function normalizedCycle() {
     ? athlete.cycle.experienceLevel
     : "beginner";
   athlete.cycle.week = Math.min(Number(athlete.cycle.week || 1), athlete.cycle.length);
+  athlete.cycle.recoveryMode = athlete.cycle.recoveryMode === true;
+  athlete.cycle.recoveryForWeek = athlete.cycle.recoveryForWeek ? Number(athlete.cycle.recoveryForWeek) : null;
+  athlete.cycle.recoveryFromWeek = athlete.cycle.recoveryFromWeek ? Number(athlete.cycle.recoveryFromWeek) : null;
+  athlete.cycle.pendingRecoveryAlert = athlete.cycle.pendingRecoveryAlert || null;
   athlete.cycle.availableFacilityExercises = Array.isArray(athlete.cycle.availableFacilityExercises)
     ? athlete.cycle.availableFacilityExercises.filter((id) => facilityExerciseOptions.includes(id))
     : [];
@@ -2087,6 +2219,12 @@ function updateCycleFromInputs() {
     bench: els.benchMaxInput.value,
     deadlift: els.deadliftMaxInput.value
   };
+  if (previousMethod !== cycle.programMethod || previousTarget !== cycle.planTarget) {
+    cycle.recoveryMode = false;
+    cycle.recoveryForWeek = null;
+    cycle.recoveryFromWeek = null;
+    cycle.pendingRecoveryAlert = null;
+  }
   applyProgramRules(cycle, previousMethod, previousTarget);
   saveState();
   render();
@@ -2308,10 +2446,53 @@ function findPreviousFeedback(cycle, item) {
 }
 
 function previousAdjustmentMessage(feedback) {
-  if (feedback.status === "heavy") return "今週は提案重量から -2.5〜5kg を推奨します。";
-  if (feedback.status === "warn") return "今週は提案重量から -2.5kg を検討してください。";
-  if (feedback.status === "light") return "軽く感じていたので +2.5kg、最大でも +5kg までなら検討できます。";
-  return "今週も提案重量を基準に、予定RPEを守りましょう。";
+  if (feedback.status === "heavy") return "今週は -2.5〜5kg やバックオフ減を検討し、予定RPEを守ることを優先してください。";
+  if (feedback.status === "warn") return "今週は -2.5kg を検討してください。重量を下げる判断もプログラム成功の一部です。";
+  if (feedback.status === "light") return "軽く感じていたので +2.5kg、最大でも +5kg までなら検討できます。追いすぎず予定RPE内で止めましょう。";
+  return "今週も提案重量を基準に、予定RPEを守る感覚を育てましょう。";
+}
+
+function recoverySignalForNextWeek(cycle) {
+  if (cycle.week >= cycle.length || cycle.recoveryMode || cycle.pendingRecoveryAlert) return null;
+  const currentWeek = cycle.week;
+  const nextWeek = Math.min(cycle.week + 1, cycle.length);
+  const currentEntries = planFeedbackEntriesForWeek(cycle, currentWeek);
+  const heavyEntries = currentEntries.filter((entry) => rpeDiff(entry) >= 1.5);
+  const heavyLifts = [...new Set(heavyEntries.map((entry) => entry.lift || entry.exerciseName).filter(Boolean))];
+  const reasons = [];
+  if (heavyLifts.length >= 2 || heavyEntries.length >= 2) {
+    reasons.push(`W${currentWeek}で予定よりRPE +1.5以上の実績が${heavyEntries.length}件あります。`);
+  }
+  const previousEntries = planFeedbackEntriesForWeek(cycle, currentWeek - 1);
+  const consecutive = heavyTrendLifts(currentEntries, previousEntries);
+  if (consecutive.length) {
+    reasons.push(`2週連続で重く出ている種目: ${consecutive.map((lift) => mainLiftNames[lift] || lift).join(" / ")}`);
+  }
+  if (!reasons.length) return null;
+  return {
+    fromWeek: currentWeek,
+    nextWeek,
+    reasons,
+    createdAt: new Date().toISOString()
+  };
+}
+
+function planFeedbackEntriesForWeek(cycle, week) {
+  if (week < 1) return [];
+  const prefix = [cycle.programMethod, cycle.buddyLevel || "level1", cycle.planTarget, `w${week}`].join("|");
+  return Object.entries(currentAthlete().rpeFeedback || {})
+    .filter(([key, value]) => key.startsWith(prefix) && value.plannedRpe && value.rpe)
+    .map(([key, value]) => ({ key, ...value }));
+}
+
+function rpeDiff(entry) {
+  return Number(entry.rpe || 0) - Number(entry.plannedRpe || 0);
+}
+
+function heavyTrendLifts(currentEntries, previousEntries) {
+  const currentHeavy = new Set(currentEntries.filter((entry) => rpeDiff(entry) >= 1).map((entry) => entry.lift).filter(Boolean));
+  const previousHeavy = new Set(previousEntries.filter((entry) => rpeDiff(entry) >= 1).map((entry) => entry.lift).filter(Boolean));
+  return [...currentHeavy].filter((lift) => previousHeavy.has(lift));
 }
 
 function prescriptionForWeek(liftId, max, week, length, daysPerWeek, variant = "main", priorityLift = "total", buddyLevel = "level1") {
@@ -3427,6 +3608,11 @@ els.alternativePanel.addEventListener("click", (event) => {
 });
 
 els.planList.addEventListener("click", (event) => {
+  const recoveryButton = event.target.closest("[data-recovery-action]");
+  if (recoveryButton) {
+    handleRecoveryAction(recoveryButton.dataset.recoveryAction);
+    return;
+  }
   const removeButton = event.target.closest(".actual-remove-set");
   if (removeButton) {
     const list = removeButton.closest(".actual-set-list");
@@ -3506,11 +3692,11 @@ function rpeAdjustmentFeedback(plannedRpe, actualRpe) {
     return { status: "ok", message: "記録しました。次回もフォームと余力をメモしてRPE感覚を育てましょう。" };
   }
   const diff = actualRpe - plannedRpe;
-  if (diff >= 1.5) return { status: "heavy", message: `重すぎ。予定よりRPE +${diff.toFixed(1)}。次回は -5kg、バックオフも軽め推奨。` };
-  if (diff >= 0.75) return { status: "warn", message: `やや重い。予定よりRPE +${diff.toFixed(1)}。次回は -2.5kg 推奨。` };
-  if (diff <= -1.5) return { status: "light", message: `軽すぎ。予定よりRPE ${diff.toFixed(1)}。次回は +2.5〜5kg まで。` };
-  if (diff <= -0.75) return { status: "light", message: `少し軽い。予定よりRPE ${diff.toFixed(1)}。次回は +2.5kg まで。` };
-  return { status: "ok", message: `予定通り。RPE差 ${diff >= 0 ? "+" : ""}${diff.toFixed(1)}。この感覚を基準にしましょう。` };
+  if (diff >= 1.5) return { status: "heavy", message: `予定よりRPE +${diff.toFixed(1)}。今日は重量を下げて予定RPEを守る方がプログラムとして成功です。次回は -2.5〜5kg、バックオフも1セット減を検討してください。` };
+  if (diff >= 0.75) return { status: "warn", message: `予定よりRPE +${diff.toFixed(1)}。次回は -2.5kg を検討し、重量より予定RPEを守る感覚を優先しましょう。` };
+  if (diff <= -1.5) return { status: "light", message: `予定よりRPE ${diff.toFixed(1)}。余力がありますが追いすぎず、次セットやバックオフを +2.5〜5kg まで。予定RPEを超えない範囲で止めましょう。` };
+  if (diff <= -0.75) return { status: "light", message: `予定よりRPE ${diff.toFixed(1)}。少し軽めです。次回は +2.5kg までを候補にし、フォーム精度を優先しましょう。` };
+  return { status: "ok", message: `予定通り。RPE差 ${diff >= 0 ? "+" : ""}${diff.toFixed(1)}。この感覚を次回の基準にしましょう。` };
 }
 
 els.logForm.addEventListener("submit", (event) => {
@@ -3647,6 +3833,30 @@ function toggleCollapsed(key) {
   render();
 }
 
+function handleRecoveryAction(action) {
+  const cycle = normalizedCycle();
+  if (action === "start") {
+    const alert = cycle.pendingRecoveryAlert || {};
+    cycle.recoveryMode = true;
+    cycle.recoveryFromWeek = alert.fromWeek || cycle.week;
+    cycle.recoveryForWeek = alert.nextWeek || Math.min(cycle.week + 1, cycle.length);
+    cycle.pendingRecoveryAlert = null;
+  } else if (action === "skip") {
+    const alert = cycle.pendingRecoveryAlert || {};
+    cycle.week = Math.min(alert.nextWeek || cycle.week + 1, cycle.length);
+    cycle.pendingRecoveryAlert = null;
+    cycle.recoveryMode = false;
+  } else if (action === "finish") {
+    cycle.week = Math.min(cycle.recoveryForWeek || cycle.week + 1, cycle.length);
+    cycle.recoveryMode = false;
+    cycle.recoveryForWeek = null;
+    cycle.recoveryFromWeek = null;
+    cycle.pendingRecoveryAlert = null;
+  }
+  saveState();
+  render();
+}
+
 els.profileCollapseBtn.addEventListener("click", () => toggleCollapsed("profile"));
 els.welcomeCollapseBtn?.addEventListener("click", () => toggleCollapsed("welcome"));
 els.cycleCollapseBtn.addEventListener("click", () => toggleCollapsed("cycle"));
@@ -3682,12 +3892,38 @@ els.quizApp?.addEventListener("click", (event) => {
 els.facilityGrid.addEventListener("change", updateCycleFromInputs);
 document.querySelector("#prevWeekBtn").addEventListener("click", () => {
   const cycle = normalizedCycle();
+  if (cycle.recoveryMode) {
+    cycle.recoveryMode = false;
+    cycle.recoveryForWeek = null;
+    cycle.recoveryFromWeek = null;
+  }
+  cycle.pendingRecoveryAlert = null;
   cycle.week = Math.max(cycle.week - 1, 1);
   saveState();
   render();
 });
 document.querySelector("#nextWeekBtn").addEventListener("click", () => {
   const cycle = normalizedCycle();
+  if (cycle.pendingRecoveryAlert) {
+    render();
+    return;
+  }
+  if (cycle.recoveryMode) {
+    cycle.week = Math.min(cycle.recoveryForWeek || cycle.week + 1, cycle.length);
+    cycle.recoveryMode = false;
+    cycle.recoveryForWeek = null;
+    cycle.recoveryFromWeek = null;
+    saveState();
+    render();
+    return;
+  }
+  const signal = recoverySignalForNextWeek(cycle);
+  if (signal) {
+    cycle.pendingRecoveryAlert = signal;
+    saveState();
+    render();
+    return;
+  }
   cycle.week = Math.min(cycle.week + 1, cycle.length);
   saveState();
   render();
