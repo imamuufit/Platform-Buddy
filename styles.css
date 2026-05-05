@@ -1215,7 +1215,7 @@ canvas {
 
 .actual-set-row {
   display: grid;
-  grid-template-columns: 42px repeat(3, minmax(0, 1fr));
+  grid-template-columns: 42px repeat(3, minmax(0, 1fr)) auto;
   gap: 8px;
   align-items: end;
 }
@@ -1842,7 +1842,7 @@ dialog::backdrop {
   }
 
   .actual-set-row {
-    grid-template-columns: 38px repeat(3, minmax(0, 1fr));
+    grid-template-columns: 34px repeat(3, minmax(0, 1fr)) 34px;
     gap: 6px;
   }
 

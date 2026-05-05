@@ -1765,7 +1765,7 @@ function historyLogMarkup(log) {
           <p class="history-meta history-note">${log.note ? escapeHtml(log.note) : "メモなし"}</p>
         </div>
         <div class="history-actions">
-          <button class="text-button compact" type="button" data-edit-note="${log.id}">メモ</button>
+          <button class="text-button compact" type="button" data-edit-log="${log.id}">編集</button>
           <button class="delete-entry" type="button" data-delete="${log.id}" aria-label="記録を削除">×</button>
         </div>
       </article>
@@ -2259,6 +2259,7 @@ function actualSetRowMarkup(row = {}, index = 0) {
       <label>kg<input class="actual-weight" inputmode="decimal" type="number" min="0" step="0.5" value="${escapeHtml(row.weight ?? "")}"></label>
       <label>回数<input class="actual-reps" inputmode="numeric" type="number" min="1" step="1" value="${escapeHtml(row.reps ?? "")}"></label>
       <label>RPE<input class="actual-rpe" inputmode="decimal" type="number" min="5" max="10" step="0.5" value="${escapeHtml(row.rpe ?? "")}"></label>
+      <button class="delete-entry actual-remove-set" type="button" aria-label="セットを削除">×</button>
     </div>
   `;
 }
@@ -3234,6 +3235,37 @@ function setDetailsText(log) {
   }).join(" / ");
 }
 
+function editLogWithPrompts(log) {
+  const name = prompt("種目名を編集します。", log.exerciseName || exerciseMeta(log.exerciseId).name);
+  if (name === null) return;
+  const weight = prompt("代表重量 kg を編集します。", log.weight ?? "");
+  if (weight === null) return;
+  const reps = prompt("代表回数を編集します。", log.reps ?? "");
+  if (reps === null) return;
+  const rpe = prompt("代表RPEを編集します。空欄でもOKです。", log.rpe ?? "");
+  if (rpe === null) return;
+  const note = prompt("メモを編集します。", log.note || "");
+  if (note === null) return;
+
+  const nextWeight = Number(weight);
+  const nextReps = Number(reps);
+  const nextRpe = rpe === "" ? "" : Number(rpe);
+  if (!nextWeight || !nextReps || (rpe !== "" && !nextRpe)) {
+    alert("重量・回数・RPEの入力を確認してください。");
+    return;
+  }
+  log.exerciseName = name.trim() || log.exerciseName;
+  log.weight = nextWeight;
+  log.reps = nextReps;
+  log.rpe = nextRpe;
+  log.note = note.trim();
+  if (Array.isArray(log.setDetails) && log.setDetails.length) {
+    log.setDetails[0] = { ...log.setDetails[0], weight: nextWeight, reps: nextReps, rpe: nextRpe };
+  } else {
+    log.setDetails = [{ set: 1, weight: nextWeight, reps: nextReps, rpe: nextRpe }];
+  }
+}
+
 function backupPayload() {
   return {
     app: "Platform Buddy",
@@ -3395,6 +3427,16 @@ els.alternativePanel.addEventListener("click", (event) => {
 });
 
 els.planList.addEventListener("click", (event) => {
+  const removeButton = event.target.closest(".actual-remove-set");
+  if (removeButton) {
+    const list = removeButton.closest(".actual-set-list");
+    if (list.querySelectorAll(".actual-set-row").length <= 1) return;
+    removeButton.closest(".actual-set-row").remove();
+    Array.from(list.querySelectorAll(".actual-set-row strong")).forEach((label, index) => {
+      label.textContent = `S${index + 1}`;
+    });
+    return;
+  }
   const addButton = event.target.closest(".actual-add-set");
   if (addButton) {
     const list = addButton.closest(".actual-box").querySelector(".actual-set-list");
@@ -3566,14 +3608,12 @@ els.athleteForm.addEventListener("submit", (event) => {
 });
 
 els.historyList.addEventListener("click", (event) => {
-  const editButton = event.target.closest("[data-edit-note]");
+  const editButton = event.target.closest("[data-edit-log]");
   if (editButton) {
     const athlete = currentAthlete();
-    const log = athlete.logs.find((item) => item.id === editButton.dataset.editNote);
+    const log = athlete.logs.find((item) => item.id === editButton.dataset.editLog);
     if (!log) return;
-    const updated = prompt("この記録のメモを編集します。", log.note || "");
-    if (updated === null) return;
-    log.note = updated.trim();
+    editLogWithPrompts(log);
     saveState();
     render();
     return;
