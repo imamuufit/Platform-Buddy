@@ -1258,6 +1258,80 @@ canvas {
   align-items: start;
 }
 
+.history-day {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.history-day summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+  list-style: none;
+}
+
+.history-day summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-day summary div {
+  display: grid;
+  gap: 5px;
+}
+
+.history-day summary strong {
+  line-height: 1.35;
+}
+
+.history-day summary small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.history-date {
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.history-open {
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.history-day[open] .history-open {
+  transform: rotate(180deg);
+}
+
+.history-day-details {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  background: #f8fafc;
+  padding: 10px;
+}
+
+.history-day-details .history-item {
+  box-shadow: none;
+}
+
+.history-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.history-note {
+  border-left: 3px solid #d8dee6;
+  padding-left: 8px;
+}
+
 .set-detail-list {
   display: flex;
   flex-wrap: wrap;
@@ -1688,6 +1762,15 @@ dialog::backdrop {
 
   .set-detail-head {
     display: grid;
+  }
+
+  .history-item,
+  .history-day summary {
+    grid-template-columns: 1fr;
+  }
+
+  .history-actions {
+    justify-content: flex-end;
   }
 
   .actual-save {

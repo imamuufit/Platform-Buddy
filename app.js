@@ -1686,12 +1686,64 @@ function renderChartOptions() {
 }
 
 function renderHistory() {
-  const logs = sortedLogs().slice(0, 60);
+  const logs = sortedLogs();
   if (!logs.length) {
     els.historyList.innerHTML = `<p class="history-meta">まだ記録がありません。</p>`;
     return;
   }
-  els.historyList.innerHTML = logs.map((log) => {
+  const groups = groupLogsByDate(logs).slice(0, 40);
+  els.historyList.innerHTML = groups.map(({ date, logs: dayLogs }) => {
+    const highlight = dayHighlightLog(dayLogs);
+    const highlightName = highlight.exerciseName || exerciseMeta(highlight.exerciseId).name;
+    const highlightBadge = highlight.badge || exerciseMeta(highlight.exerciseId).badge;
+    const totalVolume = Math.round(dayLogs.reduce((sum, log) => sum + volume(log), 0));
+    const open = date === groups[0].date ? "open" : "";
+    return `
+      <details class="history-day" ${open}>
+        <summary>
+          <div>
+            <span class="history-date">${escapeHtml(date)}</span>
+            <strong><span class="lift-badge">${escapeHtml(highlightBadge)}</span> ${escapeHtml(highlightName)} ${highlight.weight}kg x ${highlight.reps} x ${highlight.sets}</strong>
+            <small>${dayLogs.length}種目 / 推定ボリューム ${totalVolume.toLocaleString("ja-JP")}kg</small>
+          </div>
+          <span class="history-open">▾</span>
+        </summary>
+        <div class="history-day-details">
+          ${dayLogs.map((log) => historyLogMarkup(log)).join("")}
+        </div>
+      </details>
+    `;
+  }).join("");
+}
+
+function groupLogsByDate(logs) {
+  const grouped = new Map();
+  logs.forEach((log) => {
+    if (!grouped.has(log.date)) grouped.set(log.date, []);
+    grouped.get(log.date).push(log);
+  });
+  return [...grouped.entries()].map(([date, dayLogs]) => ({
+    date,
+    logs: dayLogs.sort((a, b) => historyLogRank(b) - historyLogRank(a) || e1rm(b.weight, b.reps) - e1rm(a.weight, a.reps))
+  }));
+}
+
+function historyLogRank(log) {
+  const rank = { squat: 300, bench: 290, deadlift: 280 };
+  return rank[log.exerciseId] || Number(log.weight || 0);
+}
+
+function dayHighlightLog(logs) {
+  const mainLiftLogs = logs.filter((log) => mainLiftIds.includes(log.exerciseId));
+  const candidates = mainLiftLogs.length ? mainLiftLogs : logs;
+  return candidates.reduce((best, log) => {
+    const logScore = mainLiftIds.includes(log.exerciseId) ? e1rm(log.weight, log.reps) : Number(log.weight || 0);
+    const bestScore = mainLiftIds.includes(best.exerciseId) ? e1rm(best.weight, best.reps) : Number(best.weight || 0);
+    return logScore > bestScore ? log : best;
+  }, candidates[0]);
+}
+
+function historyLogMarkup(log) {
     const name = log.exerciseName || exerciseMeta(log.exerciseId).name;
     const badge = log.badge || exerciseMeta(log.exerciseId).badge;
     const rpe = log.rpe ? ` RPE ${log.rpe}` : "";
@@ -1703,12 +1755,14 @@ function renderHistory() {
           <h2>${escapeHtml(name)} ${log.weight}kg x ${log.reps} x ${log.sets}</h2>
           <p class="history-meta">${log.date}${rpe} / e1RM ${e1rm(log.weight, log.reps)}kg</p>
           ${setDetails}
-          ${log.note ? `<p class="history-meta">${escapeHtml(log.note)}</p>` : ""}
+          <p class="history-meta history-note">${log.note ? escapeHtml(log.note) : "メモなし"}</p>
         </div>
-        <button class="delete-entry" type="button" data-delete="${log.id}" aria-label="記録を削除">×</button>
+        <div class="history-actions">
+          <button class="text-button compact" type="button" data-edit-note="${log.id}">メモ</button>
+          <button class="delete-entry" type="button" data-delete="${log.id}" aria-label="記録を削除">×</button>
+        </div>
       </article>
     `;
-  }).join("");
 }
 
 function setDetailsMarkup(log) {
@@ -3445,6 +3499,18 @@ els.athleteForm.addEventListener("submit", (event) => {
 });
 
 els.historyList.addEventListener("click", (event) => {
+  const editButton = event.target.closest("[data-edit-note]");
+  if (editButton) {
+    const athlete = currentAthlete();
+    const log = athlete.logs.find((item) => item.id === editButton.dataset.editNote);
+    if (!log) return;
+    const updated = prompt("この記録のメモを編集します。", log.note || "");
+    if (updated === null) return;
+    log.note = updated.trim();
+    saveState();
+    render();
+    return;
+  }
   const button = event.target.closest("[data-delete]");
   if (!button) return;
   const athlete = currentAthlete();
