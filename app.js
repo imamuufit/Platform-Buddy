@@ -125,6 +125,42 @@ const exerciseCatalog = {
 
 const mainLiftIds = ["squat", "bench", "deadlift"];
 const mainLiftNames = { squat: "SQ", bench: "BP", deadlift: "DL" };
+const meetReviewLifts = [
+  { id: "squat", label: "スクワット", short: "SQ" },
+  { id: "bench", label: "ベンチプレス", short: "BP" },
+  { id: "deadlift", label: "デッドリフト", short: "DL" }
+];
+const meetAttemptResults = {
+  success: "成功",
+  fail: "失敗",
+  pass: "未実施"
+};
+const meetRedReasons = {
+  none: "赤なし",
+  depth: "深さ",
+  command: "コール",
+  pause: "胸止め",
+  butt: "尻上がり",
+  foot: "足のズレ",
+  downward: "下がり",
+  hitch: "引っかけ",
+  lockout: "ロックアウト",
+  balance: "バランス",
+  setup: "セットアップ",
+  other: "その他"
+};
+const meetStickingPoints = {
+  none: "特になし",
+  setup: "セットアップ",
+  descent: "下ろし",
+  bottom: "ボトム",
+  offChest: "胸から離れる瞬間",
+  middle: "中間",
+  top: "トップ",
+  lockout: "ロックアウト",
+  grip: "グリップ",
+  mental: "メンタル"
+};
 
 const weightClasses = {
   male: [
@@ -994,6 +1030,7 @@ const defaultState = {
       prefecture: "",
       meetDate: "",
       cycle: defaultCycle(),
+      meetNotes: [],
       logs: [
         sampleLog(-14, "power", "squat", 140, 5, 3, 8, "余裕あり"),
         sampleLog(-10, "power", "bench", 95, 5, 4, 8.5, ""),
@@ -1076,6 +1113,18 @@ const els = {
   quizPanelContent: document.querySelector("#quizPanelContent"),
   quizSummary: document.querySelector("#quizSummary"),
   quizApp: document.querySelector("#quizApp"),
+  meetNoteForm: document.querySelector("#meetNoteForm"),
+  meetNameInput: document.querySelector("#meetNameInput"),
+  meetReviewDateInput: document.querySelector("#meetReviewDateInput"),
+  meetReviewWeightClassInput: document.querySelector("#meetReviewWeightClassInput"),
+  meetReviewBodyweightInput: document.querySelector("#meetReviewBodyweightInput"),
+  meetReviewTotalInput: document.querySelector("#meetReviewTotalInput"),
+  meetAttemptGrid: document.querySelector("#meetAttemptGrid"),
+  meetSelfInput: document.querySelector("#meetSelfInput"),
+  meetGoodInput: document.querySelector("#meetGoodInput"),
+  meetIssueInput: document.querySelector("#meetIssueInput"),
+  meetReviewPreview: document.querySelector("#meetReviewPreview"),
+  meetNoteList: document.querySelector("#meetNoteList"),
   deleteAthleteBtn: document.querySelector("#deleteAthleteBtn"),
   athleteDialog: document.querySelector("#athleteDialog"),
   athleteForm: document.querySelector("#athleteForm"),
@@ -1175,6 +1224,7 @@ function migrateState(rawState) {
       maxes: { ...defaultCycle().maxes, ...((athlete.cycle || {}).maxes || {}) }
     },
     rpeFeedback: athlete.rpeFeedback || {},
+    meetNotes: Array.isArray(athlete.meetNotes) ? athlete.meetNotes : [],
     logs: (athlete.logs || []).map((log) => {
       if (log.exerciseId) {
         const meta = exerciseMeta(log.exerciseId);
@@ -1385,6 +1435,7 @@ function render() {
   renderDataStatus();
   renderHistory();
   renderPlan();
+  renderMeetNotebook(athlete);
   renderQuiz();
   drawChart();
 }
@@ -1428,6 +1479,205 @@ function renderAssociationGuide(athlete = currentAthlete()) {
     </div>
     <a href="https://www.jpa-powerlifting.or.jp/overview.php" target="_blank" rel="noopener">JPA加盟都道府県協会リンクを見る</a>
   `;
+}
+
+function renderMeetNotebook(athlete = currentAthlete()) {
+  if (!els.meetAttemptGrid || !els.meetNoteList) return;
+  if (els.meetReviewDateInput && !els.meetReviewDateInput.value) els.meetReviewDateInput.value = today();
+  if (els.meetReviewWeightClassInput && !els.meetReviewWeightClassInput.value) els.meetReviewWeightClassInput.value = weightClassMeta(athlete.sex, athlete.weightClass)[1];
+  if (els.meetReviewBodyweightInput && !els.meetReviewBodyweightInput.value && athlete.bodyweight) els.meetReviewBodyweightInput.value = athlete.bodyweight;
+  renderMeetAttemptGrid();
+  renderMeetNoteList(athlete);
+  renderMeetReviewPreview(null);
+}
+
+function renderMeetAttemptGrid() {
+  els.meetAttemptGrid.innerHTML = meetReviewLifts.map((lift) => `
+    <section class="meet-attempt-lift">
+      <h4>${escapeHtml(lift.short)} ${escapeHtml(lift.label)}</h4>
+      ${[1, 2, 3].map((attempt) => meetAttemptRowMarkup(lift, attempt)).join("")}
+    </section>
+  `).join("");
+}
+
+function meetAttemptRowMarkup(lift, attempt) {
+  return `
+    <div class="meet-attempt-row" data-lift="${escapeHtml(lift.id)}" data-attempt="${attempt}">
+      <strong>${attempt}</strong>
+      <input class="meet-attempt-weight" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 重量">
+      <select class="meet-attempt-result" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 結果">
+        ${optionMarkup(meetAttemptResults, "pass")}
+      </select>
+      <select class="meet-attempt-red" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 赤判定理由">
+        ${optionMarkup(meetRedReasons, "none")}
+      </select>
+      <select class="meet-attempt-sticking" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 きつかった位置">
+        ${optionMarkup(meetStickingPoints, "none")}
+      </select>
+    </div>
+  `;
+}
+
+function optionMarkup(options, selectedValue = "") {
+  return Object.entries(options).map(([value, label]) => (
+    `<option value="${escapeHtml(value)}" ${value === selectedValue ? "selected" : ""}>${escapeHtml(label)}</option>`
+  )).join("");
+}
+
+function collectMeetAttempts() {
+  return Array.from(els.meetAttemptGrid.querySelectorAll(".meet-attempt-row")).map((row) => {
+    const weight = row.querySelector(".meet-attempt-weight").value ? Number(row.querySelector(".meet-attempt-weight").value) : "";
+    const selectedResult = row.querySelector(".meet-attempt-result").value;
+    const redReason = row.querySelector(".meet-attempt-red").value;
+    const result = redReason !== "none" ? "fail" : weight && selectedResult === "pass" ? "success" : selectedResult;
+    return {
+      lift: row.dataset.lift,
+      attempt: Number(row.dataset.attempt),
+      weight,
+      result,
+      redReason,
+      stickingPoint: row.querySelector(".meet-attempt-sticking").value
+    };
+  });
+}
+
+function meetAttemptIsEntered(attempt) {
+  return attempt.weight || attempt.result !== "pass" || attempt.redReason !== "none" || attempt.stickingPoint !== "none";
+}
+
+function successfulMeetTotal(attempts = []) {
+  return meetReviewLifts.reduce((sum, lift) => {
+    const best = attempts
+      .filter((attempt) => attempt.lift === lift.id && attempt.result === "success")
+      .reduce((max, attempt) => Math.max(max, Number(attempt.weight || 0)), 0);
+    return sum + best;
+  }, 0);
+}
+
+function meetSuccessCount(attempts = []) {
+  return attempts.filter((attempt) => attempt.result === "success").length;
+}
+
+function meetEnteredAttempts(attempts = []) {
+  return attempts.filter(meetAttemptIsEntered);
+}
+
+function buildMeetNoteFromForm() {
+  const attempts = collectMeetAttempts();
+  const entered = meetEnteredAttempts(attempts);
+  const computedTotal = successfulMeetTotal(attempts);
+  return {
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    name: els.meetNameInput.value.trim() || "大会ノート",
+    date: els.meetReviewDateInput.value || today(),
+    weightClass: els.meetReviewWeightClassInput.value.trim() || weightClassMeta(currentAthlete().sex, currentAthlete().weightClass)[1],
+    bodyweight: els.meetReviewBodyweightInput.value ? Number(els.meetReviewBodyweightInput.value) : "",
+    total: els.meetReviewTotalInput.value ? Number(els.meetReviewTotalInput.value) : computedTotal || "",
+    attempts: attempts.map((attempt) => ({
+      ...attempt,
+      result: meetAttemptIsEntered(attempt) ? attempt.result : "pass"
+    })),
+    selfNote: els.meetSelfInput.value.trim(),
+    goodNote: els.meetGoodInput.value.trim(),
+    issueNote: els.meetIssueInput.value.trim(),
+    successCount: meetSuccessCount(entered)
+  };
+}
+
+function renderMeetReviewPreview(note) {
+  if (!els.meetReviewPreview) return;
+  if (!note) {
+    els.meetReviewPreview.innerHTML = "";
+    return;
+  }
+  const messages = meetBuddyReview(note);
+  els.meetReviewPreview.innerHTML = `
+    <article class="meet-review-card">
+      <span>Buddy Review</span>
+      <h4>${escapeHtml(note.name)}を保存しました</h4>
+      <p>${escapeHtml(note.date)} / ${escapeHtml(note.weightClass)} / ${note.total || "-"}kg / ${meetSuccessCount(meetEnteredAttempts(note.attempts))}/9 成功</p>
+      <ul>${messages.map((message) => `<li>${escapeHtml(message)}</li>`).join("")}</ul>
+    </article>
+  `;
+}
+
+function renderMeetNoteList(athlete = currentAthlete()) {
+  const notes = [...(athlete.meetNotes || [])].sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+  if (!notes.length) {
+    els.meetNoteList.innerHTML = `<p class="history-meta">まだ大会ノートはありません。大会後の記憶が新しいうちに、9本の結果と課題を残しましょう。</p>`;
+    return;
+  }
+  els.meetNoteList.innerHTML = notes.map((note) => meetNoteCardMarkup(note)).join("");
+}
+
+function meetNoteCardMarkup(note) {
+  const entered = meetEnteredAttempts(note.attempts || []);
+  const success = meetSuccessCount(entered);
+  const total = note.total || successfulMeetTotal(note.attempts || []) || "-";
+  const review = meetBuddyReview(note);
+  return `
+    <details class="meet-note-card">
+      <summary>
+        <span>${escapeHtml(note.date || "-")}</span>
+        <strong>${escapeHtml(note.name || "大会ノート")}</strong>
+        <em>${total}kg / ${success}/9 成功</em>
+      </summary>
+      <div class="meet-note-detail">
+        <div class="meet-note-meta">
+          <span>階級: ${escapeHtml(note.weightClass || "-")}</span>
+          <span>検量: ${note.bodyweight ? `${escapeHtml(note.bodyweight)}kg` : "-"}</span>
+          <span>トータル: ${escapeHtml(total)}kg</span>
+        </div>
+        <div class="meet-attempt-summary">
+          ${(note.attempts || []).map((attempt) => meetAttemptChipMarkup(attempt)).join("")}
+        </div>
+        ${note.selfNote ? `<p><strong>自己感想</strong><br>${escapeHtml(note.selfNote)}</p>` : ""}
+        ${note.goodNote ? `<p><strong>良かった点</strong><br>${escapeHtml(note.goodNote)}</p>` : ""}
+        ${note.issueNote ? `<p><strong>次回への課題</strong><br>${escapeHtml(note.issueNote)}</p>` : ""}
+        <div class="meet-review-card compact">
+          <span>次サイクルへの材料</span>
+          <ul>${review.map((message) => `<li>${escapeHtml(message)}</li>`).join("")}</ul>
+        </div>
+        <button class="text-button danger" type="button" data-delete-meet-note="${escapeHtml(note.id)}">大会ノート削除</button>
+      </div>
+    </details>
+  `;
+}
+
+function meetAttemptChipMarkup(attempt) {
+  if (!meetAttemptIsEntered(attempt)) return "";
+  const lift = meetReviewLifts.find((item) => item.id === attempt.lift);
+  const resultClass = attempt.result === "success" ? "success" : attempt.result === "fail" ? "fail" : "pass";
+  const reason = attempt.redReason && attempt.redReason !== "none" ? ` / ${meetRedReasons[attempt.redReason] || attempt.redReason}` : "";
+  const sticking = attempt.stickingPoint && attempt.stickingPoint !== "none" ? ` / ${meetStickingPoints[attempt.stickingPoint] || attempt.stickingPoint}` : "";
+  return `<span class="meet-attempt-chip ${resultClass}">${escapeHtml(lift?.short || attempt.lift)}${attempt.attempt} ${attempt.weight || "-"}kg ${meetAttemptResults[attempt.result] || "-"}${escapeHtml(reason)}${escapeHtml(sticking)}</span>`;
+}
+
+function meetBuddyReview(note) {
+  const attempts = meetEnteredAttempts(note.attempts || []);
+  if (!attempts.length) return ["まずは9本の重量と成功・失敗を残すと、次の練習課題が見えやすくなります。"];
+  const messages = [];
+  const success = meetSuccessCount(attempts);
+  const firstFails = attempts.filter((attempt) => attempt.attempt === 1 && attempt.result === "fail").length;
+  const thirdFails = attempts.filter((attempt) => attempt.attempt === 3 && attempt.result === "fail").length;
+  if (success >= 8) messages.push("白を積み上げられています。次回も第一・第二を堅実に取り、第三で挑戦を残す流れが作れそうです。");
+  if (success <= 5) messages.push("成功数が少なめです。次回は第一試技を練習で確実に通せる重量へ寄せ、白を取る設計を優先しましょう。");
+  if (firstFails) messages.push("第一試技の失敗があります。オープナーは当日の緊張やコール込みでも成功できる重量に下げる候補です。");
+  if (thirdFails >= 2) messages.push("第三試技の失敗が複数あります。第二を確実に通してから第三へ挑戦を残す重量運びを練習しましょう。");
+
+  const reasons = attempts.map((attempt) => attempt.redReason).filter((reason) => reason && reason !== "none");
+  const points = attempts.map((attempt) => attempt.stickingPoint).filter((point) => point && point !== "none");
+  if (reasons.includes("depth")) messages.push("スクワットの深さが課題です。軽中重量で深さを固定し、ポーズスクワットやテンポで再現性を作りましょう。");
+  if (reasons.includes("pause") || reasons.includes("command")) messages.push("コールや胸止めで赤が出ています。競技式の合図待ちを普段のベンチ練習に入れましょう。");
+  if (reasons.includes("butt") || reasons.includes("foot")) messages.push("ベンチの接地が課題です。足位置とブリッジを固定し、重くなっても尻・足が動かないセットアップを探しましょう。");
+  if (reasons.includes("lockout") || reasons.includes("hitch") || reasons.includes("downward")) messages.push("デッドリフトのフィニッシュが課題です。トップ保持、ヒップスルー、最後まで押し切る練習を優先しましょう。");
+  if (points.includes("bottom")) messages.push("ボトムで重く感じています。切り返し姿勢を崩さないため、ポーズ系やボトム付近のフォーム確認が有効です。");
+  if (points.includes("offChest")) messages.push("ベンチの胸から離れる局面が課題です。静止ベンチ、足の踏み込み、胸上での軌道再現を次サイクルに入れましょう。");
+  if (points.includes("top") || points.includes("lockout")) messages.push("トップ・ロックアウトで詰まっています。過重量よりもフォームを保てる範囲で最後まで押し切る練習を増やしましょう。");
+  if (points.includes("mental")) messages.push("メンタル面の負荷が大きかった記録です。次回はウォームアップ、試技申請、待機時間の流れを事前にメモ化しましょう。");
+  if (!messages.length) messages.push("大きな赤信号は少ない記録です。良かった点を次回も再現できるよう、ウォームアップと試技選択を残しておきましょう。");
+  return [...new Set(messages)].slice(0, 5);
 }
 
 function updateCustomExerciseVisibility() {
@@ -3506,10 +3756,11 @@ function renderDataStatus() {
   if (!els.dataStatus) return;
   const athleteCount = state.athletes.length;
   const logCount = state.athletes.reduce((sum, athlete) => sum + (athlete.logs || []).length, 0);
+  const meetNoteCount = state.athletes.reduce((sum, athlete) => sum + (athlete.meetNotes || []).length, 0);
   const updated = state.updatedAt ? new Date(state.updatedAt).toLocaleString("ja-JP") : "未記録";
   els.dataStatus.innerHTML = `
     <span>保存状態</span>
-    <strong>この端末に ${athleteCount}名 / ${logCount}件の記録を保存中</strong>
+    <strong>この端末に ${athleteCount}名 / ${logCount}件の記録 / ${meetNoteCount}件の大会ノートを保存中</strong>
     <span>最終更新: ${escapeHtml(updated)}</span>
   `;
 }
@@ -3530,7 +3781,7 @@ function renderStartGuide() {
     meet: {
       title: "大会に向けて準備する",
       view: "knowledge",
-      steps: ["公式ルールリンクを確認", "白判定クイズで基本ルールを確認", "オープナー候補を考える", "大会前チェックへ進む"]
+      steps: ["公式ルールリンクを確認", "白判定クイズで基本ルールを確認", "大会後は大会ノートに9本を残す", "次サイクルの課題へつなぐ"]
     }
   };
   const active = guides[state.startAction] || guides.plan;
@@ -3586,6 +3837,33 @@ document.addEventListener("click", (event) => {
     render();
     els.quizPanelContent?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+  const deleteMeetNote = event.target.closest("[data-delete-meet-note]");
+  if (deleteMeetNote) {
+    if (!confirm("この大会ノートを削除しますか？")) return;
+    const athlete = currentAthlete();
+    athlete.meetNotes = (athlete.meetNotes || []).filter((note) => note.id !== deleteMeetNote.dataset.deleteMeetNote);
+    saveState();
+    renderMeetNoteList(athlete);
+    renderMeetReviewPreview(null);
+  }
+});
+
+els.meetNoteForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const note = buildMeetNoteFromForm();
+  const entered = meetEnteredAttempts(note.attempts);
+  if (!entered.length && !note.selfNote && !note.goodNote && !note.issueNote) {
+    alert("試技結果か感想を1つ以上入力してください。");
+    return;
+  }
+  const athlete = currentAthlete();
+  athlete.meetNotes = [note, ...(athlete.meetNotes || [])];
+  saveState();
+  els.meetNoteForm.reset();
+  els.meetReviewDateInput.value = today();
+  renderMeetAttemptGrid();
+  renderMeetNoteList(athlete);
+  renderMeetReviewPreview(note);
 });
 
 els.categorySelect.addEventListener("change", renderExerciseOptions);
@@ -3785,7 +4063,7 @@ els.athleteForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const name = els.athleteNameInput.value.trim();
   if (!name) return;
-  const athlete = { id: crypto.randomUUID(), name, sex: "male", bodyweight: "", weightClass: "83", prefecture: "", meetDate: "", cycle: defaultCycle(), logs: [] };
+  const athlete = { id: crypto.randomUUID(), name, sex: "male", bodyweight: "", weightClass: "83", prefecture: "", meetDate: "", cycle: defaultCycle(), meetNotes: [], logs: [] };
   state.athletes.push(athlete);
   state.currentAthleteId = athlete.id;
   saveState();

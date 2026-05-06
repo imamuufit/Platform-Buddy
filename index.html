@@ -359,6 +359,57 @@
                 <small>赤判定を減らす基本を復習。</small>
               </button>
             </div>
+            <section class="meet-note-panel" aria-labelledby="meetNoteTitle">
+              <div class="section-title">
+                <div>
+                  <p class="eyebrow">Meet Notebook</p>
+                  <h3 id="meetNoteTitle">大会ノート</h3>
+                </div>
+              </div>
+              <p class="screen-note">試合の記憶が薄れる前に、9本の結果・赤判定・きつかった位置・次回課題を残します。</p>
+              <form class="meet-note-form" id="meetNoteForm">
+                <div class="input-grid">
+                  <label>
+                    大会名
+                    <input id="meetNameInput" type="text" maxlength="60" placeholder="例：春季県大会">
+                  </label>
+                  <label>
+                    大会日
+                    <input id="meetReviewDateInput" type="date">
+                  </label>
+                  <label>
+                    階級
+                    <input id="meetReviewWeightClassInput" type="text" maxlength="20" placeholder="例：83kg級">
+                  </label>
+                  <label>
+                    検量体重
+                    <input id="meetReviewBodyweightInput" inputmode="decimal" type="number" min="0" step="0.1" placeholder="kg">
+                  </label>
+                  <label>
+                    トータル
+                    <input id="meetReviewTotalInput" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg">
+                  </label>
+                </div>
+                <div class="meet-attempt-grid" id="meetAttemptGrid"></div>
+                <div class="input-grid">
+                  <label>
+                    自己感想
+                    <textarea id="meetSelfInput" rows="3" placeholder="例：初出場で緊張したが、第二試技から落ち着けた"></textarea>
+                  </label>
+                  <label>
+                    良かった点
+                    <textarea id="meetGoodInput" rows="3" placeholder="例：第一試技は落ち着いて白を取れた"></textarea>
+                  </label>
+                  <label>
+                    次回への課題
+                    <textarea id="meetIssueInput" rows="3" placeholder="例：スクワットの深さ、ベンチの静止を練習する"></textarea>
+                  </label>
+                </div>
+                <button class="primary-button" type="submit">大会ノートを保存</button>
+              </form>
+              <div class="meet-review-preview" id="meetReviewPreview"></div>
+              <div class="meet-note-list" id="meetNoteList"></div>
+            </section>
             <section class="quiz-panel" aria-labelledby="quizTitle">
               <div class="quiz-head">
                 <div>

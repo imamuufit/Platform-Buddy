@@ -1582,6 +1582,179 @@ dialog::backdrop {
   padding: 14px;
 }
 
+.meet-note-panel {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--accent);
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(180deg, rgba(21, 23, 26, 0) 0 28px, rgba(21, 23, 26, 0.035) 29px, rgba(21, 23, 26, 0) 30px),
+    #fffefa;
+  padding: 14px;
+}
+
+.meet-note-form {
+  display: grid;
+  gap: 12px;
+}
+
+.meet-attempt-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.meet-attempt-lift {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px;
+}
+
+.meet-attempt-lift h4 {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.meet-attempt-row {
+  display: grid;
+  grid-template-columns: 34px minmax(72px, 0.8fr) 1fr 1fr 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.meet-attempt-row strong {
+  display: grid;
+  place-items: center;
+  min-height: 38px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+.meet-attempt-row input,
+.meet-attempt-row select {
+  min-height: 38px;
+  padding: 8px 9px;
+  font-size: 0.8rem;
+}
+
+.meet-review-preview,
+.meet-note-list {
+  display: grid;
+  gap: 10px;
+}
+
+.meet-review-card,
+.meet-note-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffefa;
+  padding: 12px;
+}
+
+.meet-review-card {
+  border-left: 5px solid var(--coach);
+}
+
+.meet-review-card.compact {
+  border-left-width: 4px;
+  padding: 10px;
+}
+
+.meet-review-card span,
+.meet-note-card summary span {
+  color: var(--accent-dark);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.meet-review-card h4 {
+  margin: 4px 0;
+  font-size: 1rem;
+}
+
+.meet-review-card p,
+.meet-note-detail p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.meet-review-card ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.meet-note-card summary {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.meet-note-card summary strong {
+  font-size: 0.95rem;
+}
+
+.meet-note-card summary em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.meet-note-detail {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.meet-note-meta,
+.meet-attempt-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.meet-note-meta span,
+.meet-attempt-chip {
+  border-radius: 999px;
+  background: #eee5d8;
+  color: var(--ink);
+  padding: 5px 8px;
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.meet-attempt-chip.success {
+  background: #ecf8ef;
+  color: var(--green);
+}
+
+.meet-attempt-chip.fail {
+  background: #fff1f0;
+  color: var(--accent);
+}
+
+.meet-attempt-chip.pass {
+  color: var(--muted);
+}
+
 .quiz-head,
 .quiz-subhead {
   display: flex;
@@ -1940,6 +2113,18 @@ dialog::backdrop {
   .actual-set-row {
     grid-template-columns: 34px repeat(3, minmax(0, 1fr)) 34px;
     gap: 6px;
+  }
+
+  .meet-attempt-row {
+    grid-template-columns: 34px repeat(2, minmax(0, 1fr));
+  }
+
+  .meet-attempt-row select:last-child {
+    grid-column: 2 / -1;
+  }
+
+  .meet-note-card summary {
+    grid-template-columns: 1fr;
   }
 
   .actual-actions {
