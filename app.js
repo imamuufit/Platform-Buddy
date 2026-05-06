@@ -365,7 +365,7 @@ const ruleSource = {
   label: "IPF Technical Rules / JPA公式ルール",
   jpaUrl: "https://www.jpa-powerlifting.or.jp/rules-members.php",
   ipfUrl: "https://www.powerlifting.sport/rules/codes/info/technical-rules",
-  lastChecked: "2026-05-04"
+  lastChecked: "2026-05-06"
 };
 
 const quizCategories = {
@@ -1037,7 +1037,338 @@ const ruleQuestions = [
     explanation: "大会は全員で進行します。自分の試技後も、アップ場や通路、平台周辺で周囲に配慮しましょう。",
     sourceSection: "大会マナー / 会場利用",
     sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "sq_walkout_011",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワットのラックアウト後、Squatの合図をもらうために優先したいことは？",
+    choices: ["足位置を決めて、膝を伸ばし静止する", "呼吸が整うまで足踏みを続ける", "横の審判に声をかける"],
+    answerIndex: 0,
+    explanation: "スクワットは開始姿勢が整ってから主審のSquat合図を待ちます。ラックアウト後に足位置・膝・体幹を安定させる練習が本番の落ち着きにつながります。",
+    sourceSection: "スクワット / 主審の合図",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "sq_depth_practice_012",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワットの深さを大会前に確認する方法として堅実なのはどれ？",
+    choices: ["横方向の動画で股関節と膝の高さを確認する", "正面の鏡だけで判断する", "重ければ深さは気にしない"],
+    answerIndex: 0,
+    explanation: "深さは感覚だけだとズレやすい部分です。横方向の動画で股関節側の大腿上面と膝上面の関係を確認しておくと、赤判定対策になります。",
+    sourceSection: "スクワット / 深さ判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "sq_rerack_control_013",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワットのRack合図後、ラックへ戻すときの考え方として安全なのは？",
+    choices: ["合図後もバーをコントロールして戻す", "合図が出たら力を抜いて前に投げる", "補助員に任せる前提で急いで下がる"],
+    answerIndex: 0,
+    explanation: "Rack合図後も安全にバーを戻すところまでが大会動作です。補助員は安全を支えますが、選手自身も最後までコントロールしましょう。",
+    sourceSection: "スクワット / ラック動作",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "sq_red_cards_014",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワットで赤判定が出た後、次の試技へ活かす行動として良いものは？",
+    choices: ["赤の理由を確認し、深さ・姿勢・合図のどこかを整理する", "悔しいので理由を見ずに重量だけ上げる", "審判のせいにして同じ動きを繰り返す"],
+    answerIndex: 0,
+    explanation: "赤判定は次の試技への情報です。深さ、ロックアウト、バーの下がり、足の動き、合図など、どの要因かを整理すると修正しやすくなります。",
+    sourceSection: "スクワット / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "sq_same_weight_015",
+    category: "squat",
+    difficulty: "beginner",
+    question: "スクワット第一試技を深さ不足で落とした場合、第二試技の考え方として堅実なのは？",
+    choices: ["成功確率を優先し、同重量または修正可能な重量を検討する", "必ず大幅に重量を上げる", "深さをさらに浅くして挙げる"],
+    answerIndex: 0,
+    explanation: "大会ではまず記録を残すことが重要です。深さ不足など修正点が明確な場合、重量を攻める前に白判定を取る判断が次につながります。",
+    sourceSection: "大会進行 / 試技選択",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "bp_contact_011",
+    category: "bench",
+    difficulty: "beginner",
+    question: "ベンチプレスでバーを下ろす位置について正しい考え方は？",
+    choices: ["胸または腹部に到達させて静止する", "胸に触れる前に押し返してよい", "シャツに軽く触れた気がすれば十分"],
+    answerIndex: 0,
+    explanation: "ベンチプレスではバーを胸または腹部まで下ろし、静止してPress合図を待ちます。普段から止めの練習を入れると本番で焦りにくくなります。",
+    sourceSection: "ベンチプレス / 試技動作",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "bp_head_shoulders_012",
+    category: "bench",
+    difficulty: "beginner",
+    question: "ベンチプレスの開始姿勢で確認したい接地として適切なのは？",
+    choices: ["頭・肩・尻・足の位置をルールに沿って安定させる", "尻を浮かせてブリッジを高くする", "足は試技中に好きな場所へ動かす"],
+    answerIndex: 0,
+    explanation: "開始姿勢は合図をもらうための土台です。接地や足位置は団体・大会要項の最新ルールを確認し、本番と同じ形で練習しましょう。",
+    sourceSection: "ベンチプレス / 開始姿勢",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "bp_press_wait_013",
+    category: "bench",
+    difficulty: "beginner",
+    question: "胸で止めた後、Press合図がなかなか出ないと感じた時に避けたいことは？",
+    choices: ["合図前に自分の判断で押し始める", "バーを静止させて合図を待つ", "呼吸と体幹を保つ"],
+    answerIndex: 0,
+    explanation: "Press合図前に押し始めると失敗判定の原因になります。練習でも長めの静止に慣れておくと、本番の待ちに対応しやすくなります。",
+    sourceSection: "ベンチプレス / 主審の合図",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "bp_rack_after_press_014",
+    category: "bench",
+    difficulty: "beginner",
+    question: "ベンチプレスで押し切った後、Rack合図前に避けたい動きは？",
+    choices: ["合図前にラックへ戻し始める", "肘を伸ばして静止する", "主審の声を待つ"],
+    answerIndex: 0,
+    explanation: "押し切ってもRack合図までは試技中です。最後の焦りでラックへ戻すと赤判定になり得るため、合図まで待つ癖を作りましょう。",
+    sourceSection: "ベンチプレス / 主審の合図",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "bp_red_review_015",
+    category: "bench",
+    difficulty: "beginner",
+    question: "ベンチプレスで赤判定が出た時、次に確認したい項目として有効なのは？",
+    choices: ["静止、コール、尻浮き、バーの下がりを確認する", "重量だけを上げる", "動画を見ずに感覚だけで判断する"],
+    answerIndex: 0,
+    explanation: "ベンチの赤判定は複数の原因が考えられます。Press待ち、尻の接地、押し上げ中の下がり、Rack合図などを分けて振り返ると修正しやすいです。",
+    sourceSection: "ベンチプレス / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "dl_full_lockout_011",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "デッドリフトのフィニッシュでDown合図をもらいやすい状態は？",
+    choices: ["膝と股関節を伸ばし、肩を返して直立し静止する", "膝が少し曲がったまま止まる", "バーを太ももに乗せて休む"],
+    answerIndex: 0,
+    explanation: "Down合図は引き切った姿勢が確認されてから出ます。膝・股関節・肩の位置を整理し、最後に静止する練習をしておきましょう。",
+    sourceSection: "デッドリフト / 試技動作",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "dl_no_start_command_012",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "デッドリフトの開始について正しい説明はどれ？",
+    choices: ["開始合図はなく、制限時間内に自分のタイミングで引く", "Start合図を待ってから引く", "三審が全員手を上げてから引く"],
+    answerIndex: 0,
+    explanation: "デッドリフトはスクワットやベンチと違い、開始合図を待ちません。準備を整えたら、制限時間内に自分のタイミングで引き始めます。",
+    sourceSection: "デッドリフト / 試技動作",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "dl_down_control_013",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "Down合図後のバーの下ろし方として望ましいものは？",
+    choices: ["両手で保持したまま床までコントロールする", "合図が出た瞬間に手を離す", "膝上から落とす"],
+    answerIndex: 0,
+    explanation: "Down合図後もバーを保持してコントロールします。落とす癖は白判定だけでなく安全面でもリスクになるため、練習から整えましょう。",
+    sourceSection: "デッドリフト / 失敗判定",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "dl_shoulders_014",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "デッドリフトのフィニッシュで避けたいものは？",
+    choices: ["上体を反りすぎてバランスを崩す", "膝を伸ばして静止する", "Down合図を待つ"],
+    answerIndex: 0,
+    explanation: "フィニッシュでは直立して静止することが大切です。過度に反ってバランスを崩すより、膝・股関節を伸ばした安定したロックアウトを目指します。",
+    sourceSection: "デッドリフト / 試技動作",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "dl_grip_plan_015",
+    category: "deadlift",
+    difficulty: "beginner",
+    question: "大会に向けたデッドリフトの握り方で堅実なのは？",
+    choices: ["本番で使う握り方を早めに決めて練習する", "大会当日に初めてフックグリップを試す", "普段はストラップだけで練習する"],
+    answerIndex: 0,
+    explanation: "大会では使える補助具が限られます。フック、オルタネイト、ダブルオーバーなど、本番の握り方を早めに決めて練習しましょう。",
+    sourceSection: "デッドリフト / 服装・個人装備",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "meet_nomination_011",
+    category: "meet",
+    difficulty: "beginner",
+    question: "大会で次の重量を申請するとき、初心者が事前に決めておくと良いものは？",
+    choices: ["成功時・失敗時それぞれの候補重量", "第三試技だけの最高目標", "周りの歓声で決める"],
+    answerIndex: 0,
+    explanation: "試合中は時間が限られます。第一試技後、第二試技後の候補を成功時・失敗時で用意しておくと、冷静に申請しやすくなります。",
+    sourceSection: "大会進行 / 試技申請",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "meet_missed_opener_012",
+    category: "meet",
+    difficulty: "beginner",
+    question: "第一試技を落とした後、次の試技選択で優先したいことは？",
+    choices: ["記録を残すために白判定の可能性を高める", "必ず予定通り重量を上げる", "理由を確認せず同じ失敗を繰り返す"],
+    answerIndex: 0,
+    explanation: "第一試技を落とした時は、まず失敗理由を整理します。記録を残すことを優先し、同重量や修正可能な選択を検討します。",
+    sourceSection: "大会進行 / 試技選択",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "meet_weigh_to_warmup_013",
+    category: "meet",
+    difficulty: "beginner",
+    question: "検量後から試技開始までの準備として良いものは？",
+    choices: ["補給、ラック高、アップ順、装備を確認する", "何も食べずに直前まで寝る", "開始時刻を見ずに会場外へ出る"],
+    answerIndex: 0,
+    explanation: "検量後は補給とアップ準備の時間です。試技開始時刻、ラック高、アップ場の混み具合、装備の順番を確認しておくと落ち着けます。",
+    sourceSection: "検量 / 大会進行",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "meet_total_strategy_014",
+    category: "meet",
+    difficulty: "beginner",
+    question: "パワーリフティング大会でTotalを残すために重要なのは？",
+    choices: ["各種目で少なくとも1本は成功させる", "スクワットだけ成功すれば十分", "第三試技だけ成功すればよい"],
+    answerIndex: 0,
+    explanation: "Totalはスクワット・ベンチプレス・デッドリフトの成功重量の合計です。各種目でまず1本を取る試技戦略が土台になります。",
+    sourceSection: "大会進行 / 成績",
+    sourceUrl: ruleSource.ipfUrl
+  },
+  {
+    id: "meet_after_review_015",
+    category: "meet",
+    difficulty: "beginner",
+    question: "大会後レビューで次サイクルに活かしやすい記録はどれ？",
+    choices: ["9本の結果、赤判定理由、体感、アップの流れ", "成功した第三試技だけ", "SNSに載せる写真だけ"],
+    answerIndex: 0,
+    explanation: "大会は次サイクルの材料です。9本の成功・失敗、赤判定の理由、アップの流れ、疲労感を残すと次の計画に変換しやすくなります。",
+    sourceSection: "大会振り返り / 記録",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_equipment_check_011",
+    category: "gear",
+    difficulty: "beginner",
+    question: "大会で使用するギアを新しく買った時、最初に確認したいことは？",
+    choices: ["大会要項・公認リスト・国内ルール上の使用可否", "見た目のかっこよさだけ", "SNSで誰かが使っているかだけ"],
+    answerIndex: 0,
+    explanation: "装備は団体や大会によって扱いが変わることがあります。購入前後に公式情報と大会要項を確認し、不明点は主催者へ確認しましょう。",
+    sourceSection: "服装・個人装備",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_shoes_012",
+    category: "gear",
+    difficulty: "beginner",
+    question: "大会で使う靴について堅実な準備は？",
+    choices: ["普段から本番で使う靴に慣れておく", "当日新品を初めて履く", "滑りやすくても気にしない"],
+    answerIndex: 0,
+    explanation: "靴はスクワット・ベンチの踏ん張りやデッドリフトの安定に関わります。大会で使えるかを確認し、普段から同じ靴で練習しましょう。",
+    sourceSection: "服装・個人装備",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_underwear_013",
+    category: "gear",
+    difficulty: "beginner",
+    question: "服装ルールで迷いやすい項目への対応として安全なのは？",
+    choices: ["下着・Tシャツ・ソックスまで大会要項とルールを確認する", "シングレットだけ確認すれば十分", "当日審判に見せれば必ず通る"],
+    answerIndex: 0,
+    explanation: "大会装備はシングレットだけではありません。Tシャツ、ソックス、下着、ベルト、リストラップなど、細かい部分も事前確認が安全です。",
+    sourceSection: "服装・個人装備",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_liquid_chalk_014",
+    category: "gear",
+    difficulty: "beginner",
+    question: "液体チョークや滑り止めを使いたい時の最も安全な対応は？",
+    choices: ["大会要項・通達・運営指示で使用可否を確認する", "自分のジムで使えるなら必ず使える", "見えないように使えばよい"],
+    answerIndex: 0,
+    explanation: "チョーク類の扱いは大会や会場の運用で変わることがあります。使用予定がある場合は、事前に最新案内を確認しましょう。背徳感より公式確認です。",
+    sourceSection: "技術委員会通達 / チョーク類",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "gear_documents_015",
+    category: "gear",
+    difficulty: "beginner",
+    question: "大会当日の受付・検量前に確認したいものはどれ？",
+    choices: ["身分確認書類、選手登録、要項、装備、補給物", "バーベルの写真だけ", "会場についてから思い出す"],
+    answerIndex: 0,
+    explanation: "大会当日は受付、検量、コスチューム確認などで慌ただしくなります。必要書類や持ち物は前日までにまとめておきましょう。",
+    sourceSection: "検量 / 大会準備",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "manners_spotters_011",
+    category: "manners",
+    difficulty: "beginner",
+    question: "補助員・運営スタッフへの接し方として望ましいものは？",
+    choices: ["指示を聞き、必要な確認は短く丁寧に行う", "試技中に長く説明を求める", "自分の希望だけを強く押し通す"],
+    answerIndex: 0,
+    explanation: "大会は多くのスタッフで進行しています。必要な確認は大切ですが、タイミングと伝え方を整えると競技進行も自分の集中も守れます。",
+    sourceSection: "大会マナー / 運営協力",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "manners_warmup_timing_012",
+    category: "manners",
+    difficulty: "beginner",
+    question: "アップ場で自分の試技順が近い選手がいる時の配慮として良いものは？",
+    choices: ["ラックやプレートを譲り合い、声かけする", "自分の動画撮影を優先して通路をふさぐ", "使わないプレートを確保し続ける"],
+    answerIndex: 0,
+    explanation: "アップ場では試技順が近い選手ほど時間が限られます。声かけと譲り合いは、初出場でもできる大切な競技マナーです。",
+    sourceSection: "大会マナー / アップ場",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "manners_coach_area_013",
+    category: "manners",
+    difficulty: "beginner",
+    question: "セコンドや仲間に撮影・声かけを頼む時に気をつけたいことは？",
+    choices: ["大会ルールと進行を妨げない位置・方法にする", "平台の近くならどこでも自由", "他選手の視界を遮っても自分優先"],
+    answerIndex: 0,
+    explanation: "撮影や声かけは助けになりますが、進行・安全・他選手への配慮が前提です。大会ごとの指示に従いましょう。",
+    sourceSection: "大会マナー / 撮影・セコンド",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "manners_noise_014",
+    category: "manners",
+    difficulty: "beginner",
+    question: "他選手の試技中に意識したいことは？",
+    choices: ["試技やコールの妨げにならないよう配慮する", "主審の声が聞こえないほど騒ぐ", "平台前を横切る"],
+    answerIndex: 0,
+    explanation: "応援は大会の良さですが、選手がコールを聞ける環境も大切です。声援と配慮の両方を持てると、会場全体が良くなります。",
+    sourceSection: "大会マナー / 会場利用",
+    sourceUrl: ruleSource.jpaUrl
+  },
+  {
+    id: "manners_learn_from_red_015",
+    category: "manners",
+    difficulty: "beginner",
+    question: "赤判定を受けた後の競技者として良い姿勢は？",
+    choices: ["理由を学び、次の試技や次回大会に活かす", "判定に怒って会場の雰囲気を悪くする", "動画を消してなかったことにする"],
+    answerIndex: 0,
+    explanation: "赤判定は競技力を上げる教材にもなります。悔しさを課題に変えられる人ほど、次の白判定に近づきます。",
+    sourceSection: "大会マナー / 振り返り",
+    sourceUrl: ruleSource.jpaUrl
   }
+
 ].map((question) => ({
   ...question,
   sourceLabel: ruleSource.label,
