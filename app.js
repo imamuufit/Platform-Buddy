@@ -1853,10 +1853,7 @@ function renderRpeCoach(cycle, phase) {
   els.rpeCoachCard.innerHTML = `
     <div>
       <p class="eyebrow">RPE Coach</p>
-      <div class="buddy-heading">
-        <span class="buddy-mark small" aria-hidden="true"><i></i></span>
-        <h3>RPEはきつさ、RIRは残り回数</h3>
-      </div>
+      <h3>RPEはきつさ、RIRは残り回数</h3>
     </div>
     <p>${guide}</p>
     <p class="rpe-principle">RPEはアプリが決める数字ではなく、自分の身体感覚を観察して育てるものです。補正は命令ではなく判断材料です。迷った日は重量よりフォームと安全を優先してください。</p>
@@ -1878,10 +1875,7 @@ function renderRecoveryAlert(cycle) {
   renderProjections(cycle);
   els.planList.innerHTML = `
     <article class="plan-card recovery-alert-card">
-      <div class="buddy-heading">
-        <span class="buddy-mark alert" aria-hidden="true"><i></i></span>
-        <span class="recommended-badge">進行を止める候補</span>
-      </div>
+      <span class="recommended-badge">進行を止める候補</span>
       <h2>このままW${nextWeek}へ進む前に、デロード週を挟む候補です。</h2>
       <p>前週のPLAN実績で、予定よりRPEが高い記録が続いています。進行を止める判断もトレーニングの一部です。</p>
       <div class="recovery-reasons">
