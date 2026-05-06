@@ -153,20 +153,40 @@ const meetRedReasonOptions = {
   squat: {
     none: "赤なし",
     red1: "赤① 深さ不足",
-    red2: "赤② 姿勢・膝ロック・切り返し・下がり",
-    red3: "赤③ 足の動き・コール・ラック動作"
+    red2: "赤② 姿勢・膝ロック・下がり",
+    red3: "赤③ 足・コール・ラック"
   },
   bench: {
     none: "赤なし",
-    red1: "赤① 胸/腹部に触れない・ベルト接触・肘の深さ",
-    red2: "赤② 挙上中の下がり・肘ロック不足",
-    red3: "赤③ コール・沈み・尻/足/頭/グリップ"
+    red1: "赤① 接触・肘の深さ",
+    red2: "赤② 下がり・肘ロック",
+    red3: "赤③ コール・沈み・姿勢"
   },
   deadlift: {
     none: "赤なし",
-    red1: "赤① 膝ロック不足・肩が返らない",
-    red2: "赤② 下がり・大腿部で支持",
-    red3: "赤③ コール前に下ろす・コントロール不足・足の動き"
+    red1: "赤① ロック不足",
+    red2: "赤② 下がり・支持",
+    red3: "赤③ コール・制御・足"
+  }
+};
+const meetRedReasonDescriptions = {
+  squat: {
+    none: "白判定、または赤判定を記録しない場合。",
+    red1: "スクワット赤①：深さ不足。ヒップジョイントが膝上面より下がらない失敗です。",
+    red2: "スクワット赤②：姿勢、膝ロック、切り返し後の下がりなど挙上動作の失敗です。",
+    red3: "スクワット赤③：足の動き、主審コール、ラック動作など手順面の失敗です。"
+  },
+  bench: {
+    none: "白判定、または赤判定を記録しない場合。",
+    red1: "ベンチ赤①：胸/腹部に触れない、ベルト接触、肘の深さ不足などの失敗です。",
+    red2: "ベンチ赤②：挙上中の下がり、肘ロック不足など挙上動作の失敗です。",
+    red3: "ベンチ赤③：コール、沈み、尻・足・頭・グリップ保持など手順/姿勢面の失敗です。"
+  },
+  deadlift: {
+    none: "白判定、または赤判定を記録しない場合。",
+    red1: "デッドリフト赤①：膝ロック不足、肩が返らないなどフィニッシュ姿勢の失敗です。",
+    red2: "デッドリフト赤②：挙上中の下がり、大腿部での支持など挙上動作の失敗です。",
+    red3: "デッドリフト赤③：ダウンコール前に下ろす、コントロール不足、足の動きなど手順面の失敗です。"
   }
 };
 const meetStickingPoints = {
@@ -1539,12 +1559,22 @@ function meetAttemptRowMarkup(lift, attempt) {
       <select class="meet-attempt-result" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 結果">
         ${optionMarkup(meetAttemptResults, "pass")}
       </select>
-      <select class="meet-attempt-red" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 赤判定理由">
-        ${optionMarkup(meetRedReasonOptions[lift.id] || meetRedReasonOptions.squat, "none")}
-      </select>
-      <select class="meet-attempt-sticking" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 きつかった位置">
-        ${optionMarkup(meetStickingPoints, "none")}
-      </select>
+      <details class="meet-attempt-detail">
+        <summary>詳細</summary>
+        <label>
+          赤判定
+          <select class="meet-attempt-red" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 赤判定理由">
+            ${optionMarkup(meetRedReasonOptions[lift.id] || meetRedReasonOptions.squat, "none")}
+          </select>
+        </label>
+        <p class="meet-red-description">${escapeHtml(meetRedDescription(lift.id, "none"))}</p>
+        <label>
+          きつかった位置
+          <select class="meet-attempt-sticking" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 きつかった位置">
+            ${optionMarkup(meetStickingPoints, "none")}
+          </select>
+        </label>
+      </details>
     </div>
   `;
 }
@@ -1557,6 +1587,20 @@ function optionMarkup(options, selectedValue = "") {
 
 function meetRedReasonLabel(lift, reason) {
   return (meetRedReasonOptions[lift] || {})[reason] || meetRedReasons[reason] || reason || "";
+}
+
+function meetRedDescription(lift, reason) {
+  return (meetRedReasonDescriptions[lift] || meetRedReasonDescriptions.squat || {})[reason] || meetRedReasonLabel(lift, reason);
+}
+
+function updateMeetAttemptDetail(row) {
+  const resultSelect = row?.querySelector?.(".meet-attempt-result");
+  const redSelect = row?.querySelector?.(".meet-attempt-red");
+  const details = row?.querySelector?.(".meet-attempt-detail");
+  const description = row?.querySelector?.(".meet-red-description");
+  if (!resultSelect || !redSelect || !details) return;
+  if (description) description.textContent = meetRedDescription(row.dataset.lift, redSelect.value);
+  if (resultSelect.value === "fail" || redSelect.value !== "none") details.open = true;
 }
 
 function collectMeetAttempts() {
@@ -3892,6 +3936,12 @@ document.addEventListener("click", (event) => {
     renderMeetReviewPreview(null);
     renderCollapseSummaries(athlete, normalizedCycle());
   }
+});
+
+els.meetAttemptGrid?.addEventListener("change", (event) => {
+  const row = event.target.closest(".meet-attempt-row");
+  if (!row) return;
+  updateMeetAttemptDetail(row);
 });
 
 els.meetNoteForm?.addEventListener("submit", (event) => {

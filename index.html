@@ -26,8 +26,8 @@
           </div>
         </div>
         <div class="export-actions">
-          <button class="text-button compact" id="exportBtn" type="button" aria-label="記録Excelを書き出す" title="記録Excelを書き出す">Log</button>
-          <button class="text-button compact" id="exportPlanBtn" type="button" aria-label="12週プランExcelを書き出す" title="12週プランExcelを書き出す">Excel</button>
+          <button class="text-button compact" id="exportBtn" type="button" aria-label="記録データを書き出す" title="記録データを書き出す">記録DL</button>
+          <button class="text-button compact" id="exportPlanBtn" type="button" aria-label="12週プランを書き出す" title="12週プランを書き出す">計画DL</button>
         </div>
       </header>
 
@@ -338,9 +338,31 @@
           <section class="panel">
             <div class="section-title">
               <div>
-                <p class="eyebrow">Meet Prep</p>
-                <h2>大会準備</h2>
+                <p class="eyebrow">Meet Prep / Review</p>
+                <h2>MEET｜大会前後のチェック</h2>
               </div>
+            </div>
+            <p class="screen-note meet-intro-note">この画面では、大会前の確認・大会後の結果記録・次サイクルの課題整理をまとめて行えます。</p>
+            <div class="meet-flow-grid" aria-label="大会前後の使い方">
+              <article class="meet-flow-card">
+                <span>1</span>
+                <strong>大会前に確認する</strong>
+                <small>公式ルール、国内要項、白判定クイズで当日の不安を減らします。</small>
+              </article>
+              <article class="meet-flow-card">
+                <span>2</span>
+                <strong>大会後に残す</strong>
+                <small>9本の重量・成功/失敗・赤判定・感想を大会ノートに保存します。</small>
+              </article>
+              <article class="meet-flow-card">
+                <span>3</span>
+                <strong>次サイクルに活かす</strong>
+                <small>赤判定と失敗傾向から、次に伸ばす練習テーマを見つけます。</small>
+              </article>
+            </div>
+            <div class="meet-section-label">
+              <span>大会前に確認する</span>
+              <small>公式情報と白判定クイズ</small>
             </div>
             <div class="meet-shortcut-grid">
               <a class="meet-shortcut" href="https://www.powerlifting.sport/rules/codes/info/technical-rules" target="_blank" rel="noopener">
@@ -359,56 +381,69 @@
                 <small>赤判定を減らす基本を復習。</small>
               </button>
             </div>
+            <div class="meet-section-label">
+              <span>大会後に残す</span>
+              <small>結果入力と振り返り</small>
+            </div>
             <section class="meet-note-panel" aria-labelledby="meetNoteTitle">
               <div class="section-title">
                 <div>
                   <p class="eyebrow">Meet Notebook</p>
                   <h3 id="meetNoteTitle">大会ノート</h3>
                 </div>
+                <button class="collapse-toggle" id="meetNoteCollapseBtn" type="button" aria-label="大会ノートを開く" aria-expanded="false">▾</button>
               </div>
-              <p class="screen-note">試合の記憶が薄れる前に、9本の結果・赤判定・きつかった位置・次回課題を残します。</p>
-              <form class="meet-note-form" id="meetNoteForm">
-                <div class="input-grid">
-                  <label>
-                    大会名
-                    <input id="meetNameInput" type="text" maxlength="60" placeholder="例：春季県大会">
-                  </label>
-                  <label>
-                    大会日
-                    <input id="meetReviewDateInput" type="date">
-                  </label>
-                  <label>
-                    階級
-                    <input id="meetReviewWeightClassInput" type="text" maxlength="20" placeholder="例：83kg級">
-                  </label>
-                  <label>
-                    検量体重
-                    <input id="meetReviewBodyweightInput" inputmode="decimal" type="number" min="0" step="0.1" placeholder="kg">
-                  </label>
-                  <label>
-                    トータル
-                    <input id="meetReviewTotalInput" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg">
-                  </label>
-                </div>
-                <div class="meet-attempt-grid" id="meetAttemptGrid"></div>
-                <div class="input-grid">
-                  <label>
-                    自己感想
-                    <textarea id="meetSelfInput" rows="3" placeholder="例：初出場で緊張したが、第二試技から落ち着けた"></textarea>
-                  </label>
-                  <label>
-                    良かった点
-                    <textarea id="meetGoodInput" rows="3" placeholder="例：第一試技は落ち着いて白を取れた"></textarea>
-                  </label>
-                  <label>
-                    次回への課題
-                    <textarea id="meetIssueInput" rows="3" placeholder="例：スクワットの深さ、ベンチの静止を練習する"></textarea>
-                  </label>
-                </div>
-                <button class="primary-button" type="submit">大会ノートを保存</button>
-              </form>
-              <div class="meet-review-preview" id="meetReviewPreview"></div>
-              <div class="meet-note-list" id="meetNoteList"></div>
+              <p class="collapse-summary" id="meetNoteSummary"></p>
+              <div class="collapsible-content" id="meetNotePanelContent">
+                <p class="screen-note">まずは重量と成功/失敗だけでOK。必要な試技だけ「詳細」を開き、赤判定やきつかった位置を残せます。</p>
+                <form class="meet-note-form" id="meetNoteForm">
+                  <div class="input-grid">
+                    <label>
+                      大会名
+                      <input id="meetNameInput" type="text" maxlength="60" placeholder="例：春季県大会">
+                    </label>
+                    <label>
+                      大会日
+                      <input id="meetReviewDateInput" type="date">
+                    </label>
+                    <label>
+                      階級
+                      <input id="meetReviewWeightClassInput" type="text" maxlength="20" placeholder="例：83kg級">
+                    </label>
+                    <label>
+                      検量体重
+                      <input id="meetReviewBodyweightInput" inputmode="decimal" type="number" min="0" step="0.1" placeholder="kg">
+                    </label>
+                    <label>
+                      トータル
+                      <input id="meetReviewTotalInput" inputmode="decimal" type="number" min="0" step="2.5" placeholder="kg">
+                    </label>
+                  </div>
+                  <p class="meet-rule-note">赤判定の選択肢は、IPF/JPAのFailure Cardsに合わせて赤①・赤②・赤③で記録します。最終判断は大会要項・最新ルール・審判説明を優先してください。</p>
+                  <div class="meet-attempt-grid" id="meetAttemptGrid"></div>
+                  <div class="input-grid">
+                    <label>
+                      自己感想
+                      <textarea id="meetSelfInput" rows="3" placeholder="例：初出場で緊張したが、第二試技から落ち着けた"></textarea>
+                    </label>
+                    <label>
+                      良かった点
+                      <textarea id="meetGoodInput" rows="3" placeholder="例：第一試技は落ち着いて白を取れた"></textarea>
+                    </label>
+                    <label>
+                      次回への課題
+                      <textarea id="meetIssueInput" rows="3" placeholder="例：スクワットの深さ、ベンチの静止を練習する"></textarea>
+                    </label>
+                  </div>
+                  <div class="meet-section-label compact">
+                    <span>次サイクルに活かす</span>
+                    <small>保存後にBuddy Reviewで課題が表示されます</small>
+                  </div>
+                  <button class="primary-button" type="submit">大会ノートを保存</button>
+                </form>
+                <div class="meet-review-preview" id="meetReviewPreview"></div>
+                <div class="meet-note-list" id="meetNoteList"></div>
+              </div>
             </section>
             <section class="quiz-panel" aria-labelledby="quizTitle">
               <div class="quiz-head">
