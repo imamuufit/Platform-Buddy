@@ -328,9 +328,33 @@ h2 {
   line-height: 1.6;
 }
 
+
+.start-principle {
+  display: grid;
+  gap: 5px;
+  border: 1px solid #ead6d3;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(180, 35, 24, 0.08), rgba(255, 255, 255, 0) 54%), #fffefa;
+  padding: 11px 12px;
+}
+
+.start-principle span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.start-principle strong {
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
 .start-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -350,7 +374,7 @@ h2 {
 }
 
 .start-card {
-  min-height: 136px;
+  min-height: 132px;
 }
 
 .start-card.active,
@@ -2223,7 +2247,8 @@ dialog::backdrop {
   }
 
   .guide-off .start-card small,
-  .guide-off .welcome-message {
+  .guide-off .welcome-message,
+  .guide-off .start-principle {
     display: none;
   }
 

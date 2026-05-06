@@ -42,22 +42,31 @@
           </div>
           <p class="collapse-summary" id="welcomeSummary"></p>
           <div class="collapsible-content" id="welcomePanelContent">
-            <p class="welcome-message">全部を一度に覚えなくて大丈夫。まずは今日の1セットを記録するところから始めましょう。</p>
+            <p class="welcome-message">全部を一度に覚えなくて大丈夫。まずは現在地を知り、PRサイクルを組むところから始めましょう。</p>
+            <div class="start-principle" aria-label="Platform Buddyの基本ステップ">
+              <span>Platform Buddyの順番</span>
+              <strong>現在地 → PRサイクル → 実施 → 大会/検証 → 次サイクル</strong>
+            </div>
             <div class="start-card-grid" aria-label="目的を選ぶ">
               <button class="start-card recommended" type="button" data-start-action="plan">
                 <span>PLAN</span>
-                <strong>BIG3のMAX更新を狙いたい</strong>
-                <small>現在1RMからPRサイクルを作ります。</small>
+                <strong>PRサイクルを組む</strong>
+                <small>現在1RM、週数、頻度から強くなる計画を作ります。</small>
               </button>
-              <button class="start-card" type="button" data-start-action="log">
-                <span>LOG</span>
-                <strong>今日のトレーニングを記録したい</strong>
-                <small>種目、重量、回数、RPEを残して成長を見ます。</small>
+              <button class="start-card" type="button" data-start-action="max">
+                <span>MAX</span>
+                <strong>現在地を知る</strong>
+                <small>e1RMとBIG3バランスから、狙うPRを整理します。</small>
               </button>
               <button class="start-card" type="button" data-start-action="meet">
                 <span>MEET</span>
-                <strong>パワーリフティング大会に出てみたい</strong>
-                <small>白判定、公式ルール、大会準備を確認します。</small>
+                <strong>大会に向けて学ぶ</strong>
+                <small>白判定、公式ルール、大会後レビューを確認します。</small>
+              </button>
+              <button class="start-card" type="button" data-start-action="log">
+                <span>LOG</span>
+                <strong>自主トレを残す</strong>
+                <small>プラン外の補助種目、単発練習、体感メモを保存します。</small>
               </button>
             </div>
             <div class="start-guide" id="startGuide" aria-live="polite"></div>
@@ -124,7 +133,7 @@
               </div>
               <input id="dateInput" type="date" required>
             </div>
-            <p class="screen-note">プラン外の補助種目、単発練習、自主トレを残す場所です。</p>
+            <p class="screen-note">LOGはプラン外の補助種目、単発練習、自主トレを残す補助ノートです。メイン練習はPLANを基準に積み、ここでは体感や追加練習を整理しましょう。</p>
 
             <div class="form-row">
               <label>

@@ -1230,7 +1230,7 @@ function loadState() {
 function migrateState(rawState) {
   const migrated = rawState;
   migrated.guideMode = typeof migrated.guideMode === "boolean" ? migrated.guideMode : true;
-  migrated.startAction = ["log", "plan", "meet"].includes(migrated.startAction) ? migrated.startAction : "plan";
+  migrated.startAction = ["log", "plan", "max", "meet"].includes(migrated.startAction) ? migrated.startAction : "plan";
   migrated.collapsed = {
     ...defaultState.collapsed,
     ...(migrated.collapsed || {})
@@ -1453,7 +1453,7 @@ function renderCollapseSummaries(athlete, cycle) {
     els.quizSummary.textContent = `進捗 ${attempted}/${ruleQuestions.length}問 / 正解率 ${rate}% / 復習 ${wrong}問`;
   }
   if (els.welcomeSummary) {
-    const guideLabels = { plan: "MAX更新へのPRサイクル", log: "今日のトレーニング記録", meet: "大会準備と白判定" };
+    const guideLabels = { plan: "PRサイクル設計", max: "現在地とBIG3バランス", meet: "大会準備と白判定", log: "プラン外の自主トレ" };
     els.welcomeSummary.textContent = `目的別ヘルプ: ${guideLabels[state.startAction] || guideLabels.plan}`;
   }
 }
@@ -3857,20 +3857,25 @@ function renderDataStatus() {
 function renderStartGuide() {
   if (!els.startGuide) return;
   const guides = {
-    log: {
-      title: "今日の記録から始める",
-      view: "log",
-      steps: ["種目を選ぶ", "重量・回数・RPEを入力", "e1RMを確認", "Buddyコメントを見る"]
-    },
     plan: {
-      title: "MAX更新を狙う",
+      title: "PRサイクルを組む",
       view: "plan",
-      steps: ["現在の1RMを入力", "週数と頻度を選ぶ", "PRサイクルを作成", "実施後に記録を残す"]
+      steps: ["現在1RMを入力", "週数と頻度を選ぶ", "PRサイクルを作成", "プランに沿って積む"]
+    },
+    max: {
+      title: "現在地を知る",
+      view: "analysis",
+      steps: ["e1RMを確認", "BIG3バランスを見る", "狙うPRを決める", "次サイクルへ反映"]
     },
     meet: {
-      title: "大会に向けて準備する",
+      title: "大会に向けて学ぶ",
       view: "knowledge",
-      steps: ["公式ルールリンクを確認", "白判定クイズで基本ルールを確認", "大会後は大会ノートに9本を残す", "次サイクルの課題へつなぐ"]
+      steps: ["公式ルールリンクを確認", "白判定クイズで基本ルールを確認", "大会後は9本をレビュー", "次サイクルの課題へつなぐ"]
+    },
+    log: {
+      title: "プラン外の自主トレを残す",
+      view: "log",
+      steps: ["補助種目を選ぶ", "重量・回数・RPEを入力", "体感メモを残す", "プランへの影響を確認"]
     }
   };
   const active = guides[state.startAction] || guides.plan;
