@@ -149,6 +149,26 @@ const meetRedReasons = {
   setup: "セットアップ",
   other: "その他"
 };
+const meetRedReasonOptions = {
+  squat: {
+    none: "赤なし",
+    red1: "赤① 深さ不足",
+    red2: "赤② 姿勢・膝ロック・切り返し・下がり",
+    red3: "赤③ 足の動き・コール・ラック動作"
+  },
+  bench: {
+    none: "赤なし",
+    red1: "赤① 胸/腹部に触れない・ベルト接触・肘の深さ",
+    red2: "赤② 挙上中の下がり・肘ロック不足",
+    red3: "赤③ コール・沈み・尻/足/頭/グリップ"
+  },
+  deadlift: {
+    none: "赤なし",
+    red1: "赤① 膝ロック不足・肩が返らない",
+    red2: "赤② 下がり・大腿部で支持",
+    red3: "赤③ コール前に下ろす・コントロール不足・足の動き"
+  }
+};
 const meetStickingPoints = {
   none: "特になし",
   setup: "セットアップ",
@@ -1008,7 +1028,7 @@ const defaultState = {
   currentAthleteId: "me",
   guideMode: true,
   startAction: "plan",
-  collapsed: { welcome: true, profile: true, cycle: false, facilities: true, quiz: false },
+  collapsed: { welcome: true, profile: true, cycle: false, facilities: true, meetNote: true, quiz: false },
   quiz: {
     view: "top",
     category: "",
@@ -1113,6 +1133,9 @@ const els = {
   quizPanelContent: document.querySelector("#quizPanelContent"),
   quizSummary: document.querySelector("#quizSummary"),
   quizApp: document.querySelector("#quizApp"),
+  meetNoteCollapseBtn: document.querySelector("#meetNoteCollapseBtn"),
+  meetNotePanelContent: document.querySelector("#meetNotePanelContent"),
+  meetNoteSummary: document.querySelector("#meetNoteSummary"),
   meetNoteForm: document.querySelector("#meetNoteForm"),
   meetNameInput: document.querySelector("#meetNameInput"),
   meetReviewDateInput: document.querySelector("#meetReviewDateInput"),
@@ -1364,6 +1387,7 @@ function renderCollapseState(athlete = currentAthlete(), cycle = normalizedCycle
   applyCollapse("welcome", els.welcomePanelContent, els.welcomeCollapseBtn, "はじめてガイド");
   applyCollapse("cycle", els.cyclePanelContent, els.cycleCollapseBtn, "PRサイクル設計");
   applyCollapse("facilities", els.facilityGrid, els.facilityCollapseBtn, "設備依存種目");
+  applyCollapse("meetNote", els.meetNotePanelContent, els.meetNoteCollapseBtn, "大会ノート");
   applyCollapse("quiz", els.quizPanelContent, els.quizCollapseBtn, "白判定クイズ");
   renderCollapseSummaries(athlete, cycle);
 }
@@ -1393,6 +1417,13 @@ function renderCollapseSummaries(athlete, cycle) {
 
   const count = cycle.availableFacilityExercises.length;
   els.facilitySummary.textContent = count ? `使用可能: ${count}種目` : "使用可能設備の追加なし";
+  if (els.meetNoteSummary) {
+    const notes = [...(athlete.meetNotes || [])].sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+    const latest = notes[0];
+    els.meetNoteSummary.textContent = latest
+      ? `${notes.length}件保存 / 最新: ${latest.date || "-"} ${latest.name || "大会ノート"}`
+      : "大会後の9本、赤判定、次回課題を保存";
+  }
   if (els.quizSummary) {
     const attempted = Object.values(state.quiz?.stats || {}).filter((stat) => Number(stat.attempts || 0) > 0).length;
     const wrong = quizWrongQuestions().length;
@@ -1509,7 +1540,7 @@ function meetAttemptRowMarkup(lift, attempt) {
         ${optionMarkup(meetAttemptResults, "pass")}
       </select>
       <select class="meet-attempt-red" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 赤判定理由">
-        ${optionMarkup(meetRedReasons, "none")}
+        ${optionMarkup(meetRedReasonOptions[lift.id] || meetRedReasonOptions.squat, "none")}
       </select>
       <select class="meet-attempt-sticking" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 きつかった位置">
         ${optionMarkup(meetStickingPoints, "none")}
@@ -1522,6 +1553,10 @@ function optionMarkup(options, selectedValue = "") {
   return Object.entries(options).map(([value, label]) => (
     `<option value="${escapeHtml(value)}" ${value === selectedValue ? "selected" : ""}>${escapeHtml(label)}</option>`
   )).join("");
+}
+
+function meetRedReasonLabel(lift, reason) {
+  return (meetRedReasonOptions[lift] || {})[reason] || meetRedReasons[reason] || reason || "";
 }
 
 function collectMeetAttempts() {
@@ -1649,7 +1684,7 @@ function meetAttemptChipMarkup(attempt) {
   if (!meetAttemptIsEntered(attempt)) return "";
   const lift = meetReviewLifts.find((item) => item.id === attempt.lift);
   const resultClass = attempt.result === "success" ? "success" : attempt.result === "fail" ? "fail" : "pass";
-  const reason = attempt.redReason && attempt.redReason !== "none" ? ` / ${meetRedReasons[attempt.redReason] || attempt.redReason}` : "";
+  const reason = attempt.redReason && attempt.redReason !== "none" ? ` / ${meetRedReasonLabel(attempt.lift, attempt.redReason)}` : "";
   const sticking = attempt.stickingPoint && attempt.stickingPoint !== "none" ? ` / ${meetStickingPoints[attempt.stickingPoint] || attempt.stickingPoint}` : "";
   return `<span class="meet-attempt-chip ${resultClass}">${escapeHtml(lift?.short || attempt.lift)}${attempt.attempt} ${attempt.weight || "-"}kg ${meetAttemptResults[attempt.result] || "-"}${escapeHtml(reason)}${escapeHtml(sticking)}</span>`;
 }
@@ -1668,6 +1703,16 @@ function meetBuddyReview(note) {
 
   const reasons = attempts.map((attempt) => attempt.redReason).filter((reason) => reason && reason !== "none");
   const points = attempts.map((attempt) => attempt.stickingPoint).filter((point) => point && point !== "none");
+  const hasRed = (lift, red) => attempts.some((attempt) => attempt.lift === lift && attempt.redReason === red);
+  if (hasRed("squat", "red1")) messages.push("スクワット赤①が出ています。次サイクルは深さの再現性を最優先にし、ポーズスクワットやテンポで毎回同じボトムを作りましょう。");
+  if (hasRed("squat", "red2")) messages.push("スクワット赤②が出ています。スタート/フィニッシュ姿勢、膝ロック、切り返し後の下がりを動画で確認しましょう。");
+  if (hasRed("squat", "red3")) messages.push("スクワット赤③が出ています。足の動き、主審コール、ラック動作を普段のセットから大会式に寄せましょう。");
+  if (hasRed("bench", "red1")) messages.push("ベンチ赤①が出ています。胸/腹部への確実な接触、ベルト接触、肘の深さを練習動画で確認しましょう。");
+  if (hasRed("bench", "red2")) messages.push("ベンチ赤②が出ています。挙上中の下がりや肘ロック不足が課題です。止めベンチとロックアウトまで押し切る練習を入れましょう。");
+  if (hasRed("bench", "red3")) messages.push("ベンチ赤③が出ています。コール待ち、沈み、尻・足・頭・グリップの固定を大会式で練習しましょう。");
+  if (hasRed("deadlift", "red1")) messages.push("デッドリフト赤①が出ています。膝ロックと肩を返したフィニッシュを、トップ保持込みで練習しましょう。");
+  if (hasRed("deadlift", "red2")) messages.push("デッドリフト赤②が出ています。挙上中の下がりや大腿部での支持を避けるため、床からトップまで同じテンポで引き切る練習が必要です。");
+  if (hasRed("deadlift", "red3")) messages.push("デッドリフト赤③が出ています。主審のダウンコールまで保持し、両手でコントロールして下ろす流れを毎回守りましょう。");
   if (reasons.includes("depth")) messages.push("スクワットの深さが課題です。軽中重量で深さを固定し、ポーズスクワットやテンポで再現性を作りましょう。");
   if (reasons.includes("pause") || reasons.includes("command")) messages.push("コールや胸止めで赤が出ています。競技式の合図待ちを普段のベンチ練習に入れましょう。");
   if (reasons.includes("butt") || reasons.includes("foot")) messages.push("ベンチの接地が課題です。足位置とブリッジを固定し、重くなっても尻・足が動かないセットアップを探しましょう。");
@@ -3845,6 +3890,7 @@ document.addEventListener("click", (event) => {
     saveState();
     renderMeetNoteList(athlete);
     renderMeetReviewPreview(null);
+    renderCollapseSummaries(athlete, normalizedCycle());
   }
 });
 
@@ -3864,6 +3910,7 @@ els.meetNoteForm?.addEventListener("submit", (event) => {
   renderMeetAttemptGrid();
   renderMeetNoteList(athlete);
   renderMeetReviewPreview(note);
+  renderCollapseSummaries(athlete, normalizedCycle());
 });
 
 els.categorySelect.addEventListener("change", renderExerciseOptions);
@@ -4139,6 +4186,7 @@ els.profileCollapseBtn.addEventListener("click", () => toggleCollapsed("profile"
 els.welcomeCollapseBtn?.addEventListener("click", () => toggleCollapsed("welcome"));
 els.cycleCollapseBtn.addEventListener("click", () => toggleCollapsed("cycle"));
 els.facilityCollapseBtn.addEventListener("click", () => toggleCollapsed("facilities"));
+els.meetNoteCollapseBtn?.addEventListener("click", () => toggleCollapsed("meetNote"));
 els.quizCollapseBtn?.addEventListener("click", () => toggleCollapsed("quiz"));
 
 els.quizApp?.addEventListener("click", (event) => {
