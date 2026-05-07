@@ -1058,7 +1058,8 @@ const defaultState = {
         sampleLog(-4, "back", "lat_pulldown", 65, 10, 3, 8, "広背筋狙い"),
         sampleLog(-3, "power", "squat", 145, 4, 3, 8.5, "")
       ],
-      rpeFeedback: {}
+      rpeFeedback: {},
+      rpeCalibration: {}
     }
   ]
 };
@@ -1250,6 +1251,7 @@ function migrateState(rawState) {
       maxes: { ...defaultCycle().maxes, ...((athlete.cycle || {}).maxes || {}) }
     },
     rpeFeedback: athlete.rpeFeedback || {},
+    rpeCalibration: athlete.rpeCalibration || {},
     meetNotes: Array.isArray(athlete.meetNotes) ? athlete.meetNotes : [],
     logs: (athlete.logs || []).map((log) => {
       if (log.exerciseId) {
@@ -2124,8 +2126,9 @@ function renderPlan() {
   }
 
   const insight = planInsight(cycle);
+  const calibration = rpeCalibrationCard(cycle);
   const learningCard = weekLearningCard(cycle, phase);
-  els.planList.innerHTML = `${learningCard}${insight}${weeklyTemplate(cycle).map((day, index) => {
+  els.planList.innerHTML = `${calibration}${learningCard}${insight}${weeklyTemplate(cycle).map((day, index) => {
     const mainItems = day.items.filter((item) => item.lift || item.kind === "accessory").slice(0, 3).map((item) => item.name).join(" / ");
     return `
       <details class="day-card plan-day" ${index === 0 ? "open" : ""}>
@@ -2143,6 +2146,97 @@ function renderPlan() {
       </details>
     `;
   }).join("")}`;
+}
+
+function rpeCalibrationCard(cycle) {
+  if (cycle.programMethod !== "platform" || cycle.week !== 1) return "";
+  const key = rpeCalibrationKey(cycle);
+  const saved = currentAthlete().rpeCalibration?.[key] || {};
+  const status = saved.status || "";
+  const confidence = saved.rpeConfidence || "learning";
+  const outcome = rpeCalibrationOutcome(saved);
+  return `
+    <details class="plan-card rpe-calibration-card" ${saved.status ? "" : ""}>
+      <summary class="day-summary">
+        <div>
+          <span class="lift-badge">W0</span>
+          <h2>プラン開始前チェック</h2>
+          <p>${saved.status === "done" ? `RPEものさしセット記録済み${outcome ? ` / ${outcome}` : ""}` : saved.status === "skipped" ? "RPEものさしセットはスキップ記録済み" : "RPEものさしセットで余力予測の基準を作る"}</p>
+        </div>
+        <span class="history-open">▾</span>
+      </summary>
+      <div class="rpe-calibration-body" data-calibration-key="${escapeHtml(key)}">
+        <p class="recommended-badge">任意ドリル</p>
+        <h3>RPEものさしセット</h3>
+        <p>安全な補助種目で、RIR0 / RPE10の感覚を確認する学習ドリルです。目的は追い込みではなく、PRサイクルで使うRPE/RIRの校正です。</p>
+        <ul>
+          <li>BIG3本体・高重量フリーウェイトでは行いません。</li>
+          <li>マシン、ケーブル、安全性の高い補助種目で行います。</li>
+          <li>「もう無理そう」で止めず、安全な実施フォームを保ったまま次の1回を完遂できないところまで確認します。</li>
+          <li>最後の1回が途中で止まってもOK。痛み、反動、危険な姿勢崩れ、強い疲労がある日はスキップしてください。</li>
+        </ul>
+        <div class="calibration-status">
+          <button class="text-button compact calibration-status-btn ${status === "done" ? "active" : ""}" type="button" data-calibration-status="done">実施した</button>
+          <button class="text-button compact calibration-status-btn ${status === "skipped" ? "active" : ""}" type="button" data-calibration-status="skipped">スキップ</button>
+        </div>
+        <div class="calibration-grid">
+          <label>使用種目<input class="calibration-exercise" type="text" value="${escapeHtml(saved.exercise || "")}" placeholder="例: レッグカール"></label>
+          <label>重量<input class="calibration-weight" inputmode="decimal" type="number" min="0" step="0.5" value="${escapeHtml(saved.weight ?? "")}"></label>
+          <label>回数<input class="calibration-reps" inputmode="numeric" type="number" min="0" step="1" value="${escapeHtml(saved.reps ?? "")}"></label>
+          <label>予想RIR<input class="calibration-predicted-rir" inputmode="numeric" type="number" min="0" max="10" step="1" value="${escapeHtml(saved.predictedRir ?? "")}"></label>
+          <label>実際の追加回数<input class="calibration-actual-extra" inputmode="numeric" type="number" min="0" max="30" step="1" value="${escapeHtml(saved.actualExtraReps ?? "")}"></label>
+          <label>感じたRPE<input class="calibration-rpe" inputmode="decimal" type="number" min="5" max="10" step="0.5" value="${escapeHtml(saved.feltRpe ?? "")}"></label>
+          <label class="calibration-confidence">RPE自信度<select class="calibration-rpe-confidence">
+            <option value="solid"${confidence === "solid" ? " selected" : ""}>自信あり</option>
+            <option value="unsure"${confidence === "unsure" ? " selected" : ""}>少し迷う</option>
+            <option value="learning"${confidence === "learning" ? " selected" : ""}>感覚練習中</option>
+          </select></label>
+        </div>
+        <label>メモ<textarea class="calibration-note" rows="2" placeholder="予想より何回多くできたか、どこで限界が来たか">${escapeHtml(saved.note || "")}</textarea></label>
+        ${outcome ? `<p class="rpe-calibration-result">${escapeHtml(outcome)}</p>` : ""}
+        <div class="actual-actions">
+          <button class="text-button compact calibration-save" type="button">W0チェックを保存</button>
+        </div>
+      </div>
+    </details>
+  `;
+}
+
+function rpeCalibrationKey(cycle) {
+  return [cycle.programMethod, cycle.buddyLevel || "level1", cycle.planTarget, cycle.length, cycle.daysPerWeek, cycle.priorityLift || "total"].join("|");
+}
+
+function rpeCalibrationOutcome(saved = {}) {
+  if (saved.status === "skipped") return "スキップ。疲労や不安がある日の判断として問題ありません。";
+  const predicted = Number(saved.predictedRir);
+  const actual = Number(saved.actualExtraReps);
+  if (Number.isNaN(predicted) || Number.isNaN(actual)) return "";
+  const diff = actual - predicted;
+  if (diff >= 2) return `予想より${diff}回多くできました。きつさを早めに限界と判断しやすい可能性があります。`;
+  if (diff <= -2) return `予想より${Math.abs(diff)}回少なく限界でした。思ったより限界に近い状態だった可能性があります。`;
+  return "予想RIRと実際の追加回数は近い範囲です。この感覚を@7〜@9判断の基準にしましょう。";
+}
+
+function saveRpeCalibration(body) {
+  if (!body) return;
+  const athlete = currentAthlete();
+  const activeStatus = body.dataset.status || body.querySelector(".calibration-status-btn.active")?.dataset.calibrationStatus || "done";
+  const record = {
+    status: activeStatus,
+    exercise: body.querySelector(".calibration-exercise")?.value.trim() || "",
+    weight: body.querySelector(".calibration-weight")?.value ? Number(body.querySelector(".calibration-weight").value) : "",
+    reps: body.querySelector(".calibration-reps")?.value ? Number(body.querySelector(".calibration-reps").value) : "",
+    predictedRir: body.querySelector(".calibration-predicted-rir")?.value ? Number(body.querySelector(".calibration-predicted-rir").value) : "",
+    actualExtraReps: body.querySelector(".calibration-actual-extra")?.value ? Number(body.querySelector(".calibration-actual-extra").value) : "",
+    feltRpe: body.querySelector(".calibration-rpe")?.value ? Number(body.querySelector(".calibration-rpe").value) : "",
+    rpeConfidence: body.querySelector(".calibration-rpe-confidence")?.value || "learning",
+    note: body.querySelector(".calibration-note")?.value.trim() || "",
+    updatedAt: new Date().toISOString()
+  };
+  athlete.rpeCalibration = athlete.rpeCalibration || {};
+  athlete.rpeCalibration[body.dataset.calibrationKey] = record;
+  saveState();
+  render();
 }
 
 function renderRpeCoach(cycle, phase) {
@@ -3996,6 +4090,19 @@ els.planList.addEventListener("click", (event) => {
   const recoveryButton = event.target.closest("[data-recovery-action]");
   if (recoveryButton) {
     handleRecoveryAction(recoveryButton.dataset.recoveryAction);
+    return;
+  }
+  const statusButton = event.target.closest("[data-calibration-status]");
+  if (statusButton) {
+    const body = statusButton.closest(".rpe-calibration-body");
+    body.querySelectorAll(".calibration-status-btn").forEach((button) => button.classList.remove("active"));
+    statusButton.classList.add("active");
+    body.dataset.status = statusButton.dataset.calibrationStatus;
+    return;
+  }
+  const calibrationButton = event.target.closest(".calibration-save");
+  if (calibrationButton) {
+    saveRpeCalibration(calibrationButton.closest(".rpe-calibration-body"));
     return;
   }
   const removeButton = event.target.closest(".actual-remove-set");

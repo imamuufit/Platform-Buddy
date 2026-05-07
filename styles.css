@@ -990,6 +990,72 @@ textarea {
   border-left: 5px solid var(--coach);
 }
 
+.rpe-calibration-card {
+  border-left: 5px solid #c47a2c;
+  background: #fffaf0;
+}
+
+.rpe-calibration-body {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.rpe-calibration-body h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.rpe-calibration-body p,
+.rpe-calibration-body li {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.rpe-calibration-body ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.calibration-status {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calibration-status-btn.active {
+  border-color: #c47a2c;
+  background: #fff1d6;
+  color: #7a3f00;
+}
+
+.calibration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calibration-grid label,
+.rpe-calibration-body > label {
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.calibration-confidence {
+  grid-column: 1 / -1;
+}
+
+.rpe-calibration-result {
+  border-radius: 8px;
+  background: #fff1d6;
+  padding: 8px 10px;
+  color: #7a3f00 !important;
+}
+
 .white-nine-note {
   border-left: 4px solid var(--accent);
   border-radius: 8px;
@@ -2219,6 +2285,11 @@ dialog::backdrop {
   .actual-set-row {
     grid-template-columns: 34px repeat(3, minmax(0, 1fr)) 34px;
     gap: 6px;
+  }
+
+  .calibration-grid,
+  .calibration-status {
+    grid-template-columns: 1fr;
   }
 
   .rpe-confidence {
