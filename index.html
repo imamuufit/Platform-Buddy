@@ -16,7 +16,10 @@
     <div class="app-shell">
       <header class="topbar">
         <div class="brand-block">
-          <h1>Platform Buddy</h1>
+          <div class="brand-heading">
+            <h1>Platform Buddy</h1>
+            <span class="beta-badge">β版</span>
+          </div>
           <p class="brand-subtitle">MAX更新から大会挑戦まで、1人で始めたリフターを支える相棒。</p>
           <div class="brand-tags" aria-label="アプリのテーマ">
             <span>LOG</span>
@@ -42,7 +45,7 @@
           </div>
           <p class="collapse-summary" id="welcomeSummary"></p>
           <div class="collapsible-content" id="welcomePanelContent">
-            <p class="welcome-message">全部を一度に覚えなくて大丈夫。まずは現在地を知り、PRサイクルを組むところから始めましょう。</p>
+            <p class="welcome-message">全部を一度に覚えなくて大丈夫。まずは現在地を知り、PRサイクルを組むところから始めましょう。Platform Buddyは、やみくもな努力を次のPRにつながる計画へ変える相棒です。</p>
             <div class="start-principle" aria-label="Platform Buddyの基本ステップ">
               <span>Platform Buddyの順番</span>
               <strong>現在地 → PRサイクル → 実施 → 大会/検証 → 次サイクル</strong>
@@ -70,6 +73,19 @@
               </button>
             </div>
             <div class="start-guide" id="startGuide" aria-live="polite"></div>
+            <details class="about-safety-card">
+              <summary>
+                <span>About Platform Buddy</span>
+                <strong>β版・データ保存・免責について</strong>
+              </summary>
+              <div class="about-safety-content">
+                <p>Platform Buddyは、パワーリフターになりたい人のための学習・実践補助アプリです。</p>
+                <p>入力データは基本的にお使いの端末内に保存されます。ブラウザデータの削除、端末変更、キャッシュ削除などにより記録が消える場合があります。大きな更新前や端末変更前は、バックアップを書き出してください。</p>
+                <p>トレーニング内容、推定重量、プログラム提案は参考情報です。痛み、しびれ、強い疲労感、体調不良がある場合は、医師または専門家へ相談してください。</p>
+                <p>ルール情報と白判定クイズは学習補助です。最新のJPA/IPF公式ルール、大会要項、当日の審判・運営指示を優先してください。</p>
+                <p>不具合報告・ご意見は、公開投稿のコメントまたは制作者へのDMへお寄せください。</p>
+              </div>
+            </details>
           </div>
         </section>
 
@@ -133,7 +149,7 @@
               </div>
               <input id="dateInput" type="date" required>
             </div>
-            <p class="screen-note">LOGはプラン外の補助種目、単発練習、自主トレを残す補助ノートです。メイン練習はPLANを基準に積み、ここでは体感や追加練習を整理しましょう。</p>
+            <p class="screen-note">LOGは、プラン以外の自主トレーニングや補助種目を残す補助ノートです。メイン練習はPLANを基準に進め、ここでは体感・追加練習・補助種目を整理しましょう。</p>
 
             <div class="form-row">
               <label>
@@ -724,6 +740,7 @@
                 <p>RPE、練習量、記録頻度、BIG3バランスから保守的にコメントします。診断ではなく、次の練習判断を助ける目安です。</p>
               </article>
             </div>
+            <p class="meet-rule-note meet-footer-note">ルール情報確認日：2026-05-06。本アプリのルール解説・白判定クイズは学習補助です。最新のJPA/IPF公式ルール、大会要項、当日の審判・運営指示を優先してください。</p>
           </section>
         </section>
 
