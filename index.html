@@ -16,10 +16,7 @@
     <div class="app-shell">
       <header class="topbar">
         <div class="brand-block">
-          <div class="brand-heading">
-            <h1>Platform Buddy</h1>
-            <span class="beta-badge">β版</span>
-          </div>
+          <h1>Platform Buddy</h1>
           <p class="brand-subtitle">MAX更新から大会挑戦まで、1人で始めたリフターを支える相棒。</p>
           <div class="brand-tags" aria-label="アプリのテーマ">
             <span>LOG</span>
@@ -29,8 +26,8 @@
           </div>
         </div>
         <div class="export-actions">
-          <button class="text-button compact" id="exportBtn" type="button" aria-label="記録データを書き出す" title="記録データを書き出す">記録DL</button>
-          <button class="text-button compact" id="exportPlanBtn" type="button" aria-label="12週プランを書き出す" title="12週プランを書き出す">計画DL</button>
+          <button class="text-button compact" id="exportBtn" type="button" aria-label="記録Excelを書き出す" title="記録Excelを書き出す">Log</button>
+          <button class="text-button compact" id="exportPlanBtn" type="button" aria-label="12週プランExcelを書き出す" title="12週プランExcelを書き出す">Excel</button>
         </div>
       </header>
 
@@ -45,47 +42,25 @@
           </div>
           <p class="collapse-summary" id="welcomeSummary"></p>
           <div class="collapsible-content" id="welcomePanelContent">
-            <p class="welcome-message">全部を一度に覚えなくて大丈夫。まずは現在地を知り、PRサイクルを組むところから始めましょう。Platform Buddyは、やみくもな努力を次のPRにつながる計画へ変える相棒です。</p>
-            <div class="start-principle" aria-label="Platform Buddyの基本ステップ">
-              <span>Platform Buddyの順番</span>
-              <strong>現在地 → PRサイクル → 実施 → 大会/検証 → 次サイクル</strong>
-            </div>
+            <p class="welcome-message">全部を一度に覚えなくて大丈夫。まずは今日の1セットを記録するところから始めましょう。</p>
             <div class="start-card-grid" aria-label="目的を選ぶ">
               <button class="start-card recommended" type="button" data-start-action="plan">
                 <span>PLAN</span>
-                <strong>PRサイクルを組む</strong>
-                <small>現在1RM、週数、頻度から強くなる計画を作ります。</small>
-              </button>
-              <button class="start-card" type="button" data-start-action="max">
-                <span>MAX</span>
-                <strong>現在地を知る</strong>
-                <small>e1RMとBIG3バランスから、狙うPRを整理します。</small>
-              </button>
-              <button class="start-card" type="button" data-start-action="meet">
-                <span>MEET</span>
-                <strong>大会に向けて学ぶ</strong>
-                <small>白判定、公式ルール、大会後レビューを確認します。</small>
+                <strong>BIG3のMAX更新を狙いたい</strong>
+                <small>現在1RMからPRサイクルを作ります。</small>
               </button>
               <button class="start-card" type="button" data-start-action="log">
                 <span>LOG</span>
-                <strong>自主トレを残す</strong>
-                <small>プラン外の補助種目、単発練習、体感メモを保存します。</small>
+                <strong>今日のトレーニングを記録したい</strong>
+                <small>種目、重量、回数、RPEを残して成長を見ます。</small>
+              </button>
+              <button class="start-card" type="button" data-start-action="meet">
+                <span>MEET</span>
+                <strong>パワーリフティング大会に出てみたい</strong>
+                <small>白判定、公式ルール、大会準備を確認します。</small>
               </button>
             </div>
             <div class="start-guide" id="startGuide" aria-live="polite"></div>
-            <details class="about-safety-card">
-              <summary>
-                <span>About Platform Buddy</span>
-                <strong>β版・データ保存・免責について</strong>
-              </summary>
-              <div class="about-safety-content">
-                <p>Platform Buddyは、パワーリフターになりたい人のための学習・実践補助アプリです。</p>
-                <p>入力データは基本的にお使いの端末内に保存されます。ブラウザデータの削除、端末変更、キャッシュ削除などにより記録が消える場合があります。大きな更新前や端末変更前は、バックアップを書き出してください。</p>
-                <p>トレーニング内容、推定重量、プログラム提案は参考情報です。痛み、しびれ、強い疲労感、体調不良がある場合は、医師または専門家へ相談してください。</p>
-                <p>ルール情報と白判定クイズは学習補助です。最新のJPA/IPF公式ルール、大会要項、当日の審判・運営指示を優先してください。</p>
-                <p>不具合報告・ご意見は、公開投稿のコメントまたは制作者へのDMへお寄せください。</p>
-              </div>
-            </details>
           </div>
         </section>
 
@@ -149,7 +124,7 @@
               </div>
               <input id="dateInput" type="date" required>
             </div>
-            <p class="screen-note">LOGは、プラン以外の自主トレーニングや補助種目を残す補助ノートです。メイン練習はPLANを基準に進め、ここでは体感・追加練習・補助種目を整理しましょう。</p>
+            <p class="screen-note">プラン外の補助種目、単発練習、自主トレを残す場所です。</p>
 
             <div class="form-row">
               <label>
@@ -233,6 +208,32 @@
         </section>
 
         <section class="view active" id="planView">
+          <section class="panel buddy-method-panel">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">Buddy Method</p>
+                <h2>Buddyメソッドとは？</h2>
+              </div>
+              <button class="collapse-toggle" id="buddyMethodCollapseBtn" type="button" aria-label="Buddyメソッドとは？を開く" aria-expanded="false">▾</button>
+            </div>
+            <p class="collapse-summary" id="buddyMethodSummary"></p>
+            <div class="collapsible-content" id="buddyMethodPanelContent">
+              <p class="screen-note">Buddyメソッドは、Platform Buddy独自のPRサイクルです。毎回やみくもに重い重量を狙うのではなく、現在地、RPE、フォーム再現性、疲労管理、大会形式チェックを学びながらPRへ進むために設計しています。</p>
+              <p class="program-disclaimer">本メソッドは科学的知見を参考に設計した学習・実践用テンプレートです。特定の研究でそのまま証明された万能プログラムではなく、実施中のRPE・疲労・フォームに応じた調整を前提にしています。</p>
+              <div class="method-level-grid">
+                <article>
+                  <span>Lv1</span>
+                  <strong>標準 / 初中級者向け</strong>
+                  <p>RPE感覚、フォーム再現性、1サイクル完走を重視。軽めに見える週も、後半の成功率を作るための練習です。</p>
+                </article>
+                <article>
+                  <span>Lv2</span>
+                  <strong>実戦寄り / 中級者向け</strong>
+                  <p>RPEと%1RMを併用し、週内の強弱、高重量シングル、競技特異性を少し高めます。</p>
+                </article>
+              </div>
+            </div>
+          </section>
           <section class="panel cycle-panel">
             <div class="section-title">
               <div>
@@ -363,31 +364,9 @@
           <section class="panel">
             <div class="section-title">
               <div>
-                <p class="eyebrow">Meet Prep / Review</p>
-                <h2>MEET｜大会前後のチェック</h2>
+                <p class="eyebrow">Meet Prep</p>
+                <h2>大会準備</h2>
               </div>
-            </div>
-            <p class="screen-note meet-intro-note">この画面では、大会前の確認・大会後の結果記録・次サイクルの課題整理をまとめて行えます。</p>
-            <div class="meet-flow-grid" aria-label="大会前後の使い方">
-              <article class="meet-flow-card">
-                <span>1</span>
-                <strong>大会前に確認する</strong>
-                <small>公式ルール、国内要項、白判定クイズで当日の不安を減らします。</small>
-              </article>
-              <article class="meet-flow-card">
-                <span>2</span>
-                <strong>大会後に残す</strong>
-                <small>9本の重量・成功/失敗・赤判定・感想を大会ノートに保存します。</small>
-              </article>
-              <article class="meet-flow-card">
-                <span>3</span>
-                <strong>次サイクルに活かす</strong>
-                <small>赤判定と失敗傾向から、次に伸ばす練習テーマを見つけます。</small>
-              </article>
-            </div>
-            <div class="meet-section-label">
-              <span>大会前に確認する</span>
-              <small>公式情報と白判定クイズ</small>
             </div>
             <div class="meet-shortcut-grid">
               <a class="meet-shortcut" href="https://www.powerlifting.sport/rules/codes/info/technical-rules" target="_blank" rel="noopener">
@@ -406,10 +385,6 @@
                 <small>赤判定を減らす基本を復習。</small>
               </button>
             </div>
-            <div class="meet-section-label">
-              <span>大会後に残す</span>
-              <small>結果入力と振り返り</small>
-            </div>
             <section class="meet-note-panel" aria-labelledby="meetNoteTitle">
               <div class="section-title">
                 <div>
@@ -420,7 +395,7 @@
               </div>
               <p class="collapse-summary" id="meetNoteSummary"></p>
               <div class="collapsible-content" id="meetNotePanelContent">
-                <p class="screen-note">まずは重量と成功/失敗だけでOK。必要な試技だけ「詳細」を開き、赤判定やきつかった位置を残せます。</p>
+                <p class="screen-note">試合の記憶が薄れる前に、9本の結果・赤判定・きつかった位置・次回課題を残します。</p>
                 <form class="meet-note-form" id="meetNoteForm">
                   <div class="input-grid">
                     <label>
@@ -459,10 +434,6 @@
                       次回への課題
                       <textarea id="meetIssueInput" rows="3" placeholder="例：スクワットの深さ、ベンチの静止を練習する"></textarea>
                     </label>
-                  </div>
-                  <div class="meet-section-label compact">
-                    <span>次サイクルに活かす</span>
-                    <small>保存後にBuddy Reviewで課題が表示されます</small>
                   </div>
                   <button class="primary-button" type="submit">大会ノートを保存</button>
                 </form>
@@ -740,7 +711,6 @@
                 <p>RPE、練習量、記録頻度、BIG3バランスから保守的にコメントします。診断ではなく、次の練習判断を助ける目安です。</p>
               </article>
             </div>
-            <p class="meet-rule-note meet-footer-note">ルール情報確認日：2026-05-06。本アプリのルール解説・白判定クイズは学習補助です。最新のJPA/IPF公式ルール、大会要項、当日の審判・運営指示を優先してください。</p>
           </section>
         </section>
 

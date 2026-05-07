@@ -109,26 +109,6 @@ h2 {
   gap: 7px;
 }
 
-.brand-heading {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.beta-badge {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.26);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  padding: 4px 8px;
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 0.05em;
-}
-
 .brand-subtitle {
   color: #d8dee6;
   font-size: 0.9rem;
@@ -348,33 +328,9 @@ h2 {
   line-height: 1.6;
 }
 
-
-.start-principle {
-  display: grid;
-  gap: 5px;
-  border: 1px solid #ead6d3;
-  border-radius: 8px;
-  background: linear-gradient(90deg, rgba(180, 35, 24, 0.08), rgba(255, 255, 255, 0) 54%), #fffefa;
-  padding: 11px 12px;
-}
-
-.start-principle span {
-  color: var(--muted);
-  font-size: 0.74rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.start-principle strong {
-  color: var(--ink);
-  font-size: 0.92rem;
-  line-height: 1.45;
-}
-
 .start-card-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -394,7 +350,7 @@ h2 {
 }
 
 .start-card {
-  min-height: 132px;
+  min-height: 136px;
 }
 
 .start-card.active,
@@ -470,143 +426,8 @@ h2 {
   font-weight: 900;
 }
 
-.about-safety-card {
-  border: 1px solid #e4d8c9;
-  border-radius: 8px;
-  background: rgba(255, 253, 248, 0.86);
-  padding: 0;
-}
-
-.about-safety-card summary {
-  position: relative;
-  display: grid;
-  gap: 4px;
-  cursor: pointer;
-  list-style: none;
-  padding: 11px 12px;
-}
-
-.about-safety-card summary::-webkit-details-marker {
-  display: none;
-}
-
-.about-safety-card summary span {
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.about-safety-card summary strong {
-  color: var(--ink);
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.about-safety-card summary::after {
-  content: "▾";
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  font-weight: 900;
-}
-
-.about-safety-card[open] summary::after {
-  content: "▴";
-}
-
-.about-safety-content {
-  display: grid;
-  gap: 9px;
-  border-top: 1px dashed #e4d8c9;
-  padding: 0 12px 12px;
-}
-
-.about-safety-content p {
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 750;
-  line-height: 1.6;
-}
-
 .compact-panel {
   margin-top: 12px;
-}
-
-.meet-intro-note {
-  margin-bottom: 10px;
-}
-
-.meet-flow-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.meet-flow-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 6px 10px;
-  align-items: center;
-  border: 1px solid #e5d7c4;
-  border-radius: 8px;
-  background: #fffaf1;
-  padding: 11px;
-}
-
-.meet-flow-card span {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-.meet-flow-card strong {
-  font-size: 0.92rem;
-  line-height: 1.35;
-}
-
-.meet-flow-card small {
-  grid-column: 1 / -1;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 800;
-  line-height: 1.5;
-}
-
-.meet-section-label {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 4px 0 8px;
-  border-left: 4px solid var(--accent);
-  padding-left: 9px;
-}
-
-.meet-section-label.compact {
-  margin-top: 2px;
-}
-
-.meet-section-label span {
-  color: var(--ink);
-  font-size: 0.9rem;
-  font-weight: 900;
-}
-
-.meet-section-label small {
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 800;
 }
 
 .meet-shortcut-grid {
@@ -1130,6 +951,52 @@ textarea {
   line-height: 1.5;
 }
 
+.buddy-method-panel {
+  margin-bottom: 12px;
+}
+
+.method-level-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.method-level-grid article {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffefa;
+  padding: 12px;
+}
+
+.method-level-grid span,
+.week-learning-card > span {
+  color: var(--accent-dark);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.method-level-grid p,
+.white-nine-note {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.week-learning-card {
+  border-left: 5px solid var(--coach);
+}
+
+.white-nine-note {
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: #fff7f6;
+  padding: 9px 10px;
+}
+
 .rpe-coach-card {
   display: grid;
   gap: 10px;
@@ -1535,6 +1402,12 @@ canvas {
   color: #b42318;
 }
 
+.rpe-feedback.deload {
+  background: #fff1f0;
+  border: 1px solid #e4a19b;
+  color: #7a271a;
+}
+
 .rpe-feedback.light {
   background: #edf4ff;
   color: #155eef;
@@ -1566,6 +1439,12 @@ canvas {
 .previous-rpe.heavy {
   background: #fff1f0;
   color: #b42318;
+}
+
+.previous-rpe.deload {
+  background: #fff1f0;
+  border: 1px solid #e4a19b;
+  color: #7a271a;
 }
 
 .previous-rpe.light {
@@ -1790,11 +1669,6 @@ dialog::backdrop {
   line-height: 1.5;
 }
 
-.meet-footer-note {
-  margin-top: 14px;
-  background: rgba(255, 249, 232, 0.72);
-}
-
 .meet-attempt-grid {
   display: grid;
   gap: 10px;
@@ -1816,9 +1690,9 @@ dialog::backdrop {
 
 .meet-attempt-row {
   display: grid;
-  grid-template-columns: 34px minmax(76px, 0.8fr) minmax(96px, 1fr) minmax(168px, 1.5fr);
+  grid-template-columns: 34px minmax(72px, 0.8fr) 1fr 1fr 1fr;
   gap: 8px;
-  align-items: start;
+  align-items: center;
 }
 
 .meet-attempt-row strong {
@@ -1836,68 +1710,6 @@ dialog::backdrop {
   min-height: 38px;
   padding: 8px 9px;
   font-size: 0.8rem;
-}
-
-.meet-attempt-detail {
-  display: grid;
-  gap: 8px;
-  border: 1px solid #eadfd2;
-  border-radius: 8px;
-  background: #fffaf3;
-  padding: 0;
-}
-
-.meet-attempt-detail[open] {
-  padding-bottom: 9px;
-}
-
-.meet-attempt-detail summary {
-  min-height: 38px;
-  cursor: pointer;
-  list-style: none;
-  border-radius: 8px;
-  padding: 10px 11px;
-  color: var(--accent);
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-.meet-attempt-detail summary::-webkit-details-marker {
-  display: none;
-}
-
-.meet-attempt-detail summary::after {
-  content: "＋";
-  float: right;
-  color: var(--muted);
-}
-
-.meet-attempt-detail[open] summary::after {
-  content: "－";
-}
-
-.meet-attempt-detail label {
-  display: grid;
-  gap: 5px;
-  padding: 0 9px;
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 900;
-}
-
-.meet-attempt-detail select {
-  width: 100%;
-}
-
-.meet-red-description {
-  margin: 0 9px;
-  border-radius: 7px;
-  background: rgba(180, 35, 24, 0.07);
-  color: #7f2d23;
-  padding: 7px 8px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  line-height: 1.45;
 }
 
 .meet-review-preview,
@@ -2280,8 +2092,8 @@ dialog::backdrop {
   .association-guide,
   .start-card-grid,
   .start-guide,
+  .method-level-grid,
   .meet-shortcut-grid,
-  .meet-flow-grid,
   .cycle-grid,
   .max-grid,
   .data-actions,
@@ -2334,9 +2146,7 @@ dialog::backdrop {
   }
 
   .guide-off .start-card small,
-  .guide-off .welcome-message,
-  .guide-off .start-principle,
-  .guide-off .about-safety-content {
+  .guide-off .welcome-message {
     display: none;
   }
 
@@ -2375,18 +2185,12 @@ dialog::backdrop {
     gap: 6px;
   }
 
-  .meet-section-label {
-    display: grid;
-    gap: 3px;
-  }
-
   .meet-attempt-row {
     grid-template-columns: 34px repeat(2, minmax(0, 1fr));
-    gap: 7px;
   }
 
-  .meet-attempt-detail {
-    grid-column: 1 / -1;
+  .meet-attempt-row select:last-child {
+    grid-column: 2 / -1;
   }
 
   .meet-note-card summary {

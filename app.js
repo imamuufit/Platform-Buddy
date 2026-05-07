@@ -153,40 +153,20 @@ const meetRedReasonOptions = {
   squat: {
     none: "赤なし",
     red1: "赤① 深さ不足",
-    red2: "赤② 姿勢・膝ロック・下がり",
-    red3: "赤③ 足・コール・ラック"
+    red2: "赤② 姿勢・膝ロック・切り返し・下がり",
+    red3: "赤③ 足の動き・コール・ラック動作"
   },
   bench: {
     none: "赤なし",
-    red1: "赤① 接触・肘の深さ",
-    red2: "赤② 下がり・肘ロック",
-    red3: "赤③ コール・沈み・姿勢"
+    red1: "赤① 胸/腹部に触れない・ベルト接触・肘の深さ",
+    red2: "赤② 挙上中の下がり・肘ロック不足",
+    red3: "赤③ コール・沈み・尻/足/頭/グリップ"
   },
   deadlift: {
     none: "赤なし",
-    red1: "赤① ロック不足",
-    red2: "赤② 下がり・支持",
-    red3: "赤③ コール・制御・足"
-  }
-};
-const meetRedReasonDescriptions = {
-  squat: {
-    none: "白判定、または赤判定を記録しない場合。",
-    red1: "スクワット赤①：深さ不足。ヒップジョイントが膝上面より下がらない失敗です。",
-    red2: "スクワット赤②：姿勢、膝ロック、切り返し後の下がりなど挙上動作の失敗です。",
-    red3: "スクワット赤③：足の動き、主審コール、ラック動作など手順面の失敗です。"
-  },
-  bench: {
-    none: "白判定、または赤判定を記録しない場合。",
-    red1: "ベンチ赤①：胸/腹部に触れない、ベルト接触、肘の深さ不足などの失敗です。",
-    red2: "ベンチ赤②：挙上中の下がり、肘ロック不足など挙上動作の失敗です。",
-    red3: "ベンチ赤③：コール、沈み、尻・足・頭・グリップ保持など手順/姿勢面の失敗です。"
-  },
-  deadlift: {
-    none: "白判定、または赤判定を記録しない場合。",
-    red1: "デッドリフト赤①：膝ロック不足、肩が返らないなどフィニッシュ姿勢の失敗です。",
-    red2: "デッドリフト赤②：挙上中の下がり、大腿部での支持など挙上動作の失敗です。",
-    red3: "デッドリフト赤③：ダウンコール前に下ろす、コントロール不足、足の動きなど手順面の失敗です。"
+    red1: "赤① 膝ロック不足・肩が返らない",
+    red2: "赤② 下がり・大腿部で支持",
+    red3: "赤③ コール前に下ろす・コントロール不足・足の動き"
   }
 };
 const meetStickingPoints = {
@@ -365,7 +345,7 @@ const ruleSource = {
   label: "IPF Technical Rules / JPA公式ルール",
   jpaUrl: "https://www.jpa-powerlifting.or.jp/rules-members.php",
   ipfUrl: "https://www.powerlifting.sport/rules/codes/info/technical-rules",
-  lastChecked: "2026-05-06"
+  lastChecked: "2026-05-04"
 };
 
 const quizCategories = {
@@ -1037,338 +1017,7 @@ const ruleQuestions = [
     explanation: "大会は全員で進行します。自分の試技後も、アップ場や通路、平台周辺で周囲に配慮しましょう。",
     sourceSection: "大会マナー / 会場利用",
     sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "sq_walkout_011",
-    category: "squat",
-    difficulty: "beginner",
-    question: "スクワットのラックアウト後、Squatの合図をもらうために優先したいことは？",
-    choices: ["足位置を決めて、膝を伸ばし静止する", "呼吸が整うまで足踏みを続ける", "横の審判に声をかける"],
-    answerIndex: 0,
-    explanation: "スクワットは開始姿勢が整ってから主審のSquat合図を待ちます。ラックアウト後に足位置・膝・体幹を安定させる練習が本番の落ち着きにつながります。",
-    sourceSection: "スクワット / 主審の合図",
-    sourceUrl: ruleSource.ipfUrl
-  },
-  {
-    id: "sq_depth_practice_012",
-    category: "squat",
-    difficulty: "beginner",
-    question: "スクワットの深さを大会前に確認する方法として堅実なのはどれ？",
-    choices: ["横方向の動画で股関節と膝の高さを確認する", "正面の鏡だけで判断する", "重ければ深さは気にしない"],
-    answerIndex: 0,
-    explanation: "深さは感覚だけだとズレやすい部分です。横方向の動画で股関節側の大腿上面と膝上面の関係を確認しておくと、赤判定対策になります。",
-    sourceSection: "スクワット / 深さ判定",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "sq_rerack_control_013",
-    category: "squat",
-    difficulty: "beginner",
-    question: "スクワットのRack合図後、ラックへ戻すときの考え方として安全なのは？",
-    choices: ["合図後もバーをコントロールして戻す", "合図が出たら力を抜いて前に投げる", "補助員に任せる前提で急いで下がる"],
-    answerIndex: 0,
-    explanation: "Rack合図後も安全にバーを戻すところまでが大会動作です。補助員は安全を支えますが、選手自身も最後までコントロールしましょう。",
-    sourceSection: "スクワット / ラック動作",
-    sourceUrl: ruleSource.ipfUrl
-  },
-  {
-    id: "sq_red_cards_014",
-    category: "squat",
-    difficulty: "beginner",
-    question: "スクワットで赤判定が出た後、次の試技へ活かす行動として良いものは？",
-    choices: ["赤の理由を確認し、深さ・姿勢・合図のどこかを整理する", "悔しいので理由を見ずに重量だけ上げる", "審判のせいにして同じ動きを繰り返す"],
-    answerIndex: 0,
-    explanation: "赤判定は次の試技への情報です。深さ、ロックアウト、バーの下がり、足の動き、合図など、どの要因かを整理すると修正しやすくなります。",
-    sourceSection: "スクワット / 失敗判定",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "sq_same_weight_015",
-    category: "squat",
-    difficulty: "beginner",
-    question: "スクワット第一試技を深さ不足で落とした場合、第二試技の考え方として堅実なのは？",
-    choices: ["成功確率を優先し、同重量または修正可能な重量を検討する", "必ず大幅に重量を上げる", "深さをさらに浅くして挙げる"],
-    answerIndex: 0,
-    explanation: "大会ではまず記録を残すことが重要です。深さ不足など修正点が明確な場合、重量を攻める前に白判定を取る判断が次につながります。",
-    sourceSection: "大会進行 / 試技選択",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "bp_contact_011",
-    category: "bench",
-    difficulty: "beginner",
-    question: "ベンチプレスでバーを下ろす位置について正しい考え方は？",
-    choices: ["胸または腹部に到達させて静止する", "胸に触れる前に押し返してよい", "シャツに軽く触れた気がすれば十分"],
-    answerIndex: 0,
-    explanation: "ベンチプレスではバーを胸または腹部まで下ろし、静止してPress合図を待ちます。普段から止めの練習を入れると本番で焦りにくくなります。",
-    sourceSection: "ベンチプレス / 試技動作",
-    sourceUrl: ruleSource.ipfUrl
-  },
-  {
-    id: "bp_head_shoulders_012",
-    category: "bench",
-    difficulty: "beginner",
-    question: "ベンチプレスの開始姿勢で確認したい接地として適切なのは？",
-    choices: ["頭・肩・尻・足の位置をルールに沿って安定させる", "尻を浮かせてブリッジを高くする", "足は試技中に好きな場所へ動かす"],
-    answerIndex: 0,
-    explanation: "開始姿勢は合図をもらうための土台です。接地や足位置は団体・大会要項の最新ルールを確認し、本番と同じ形で練習しましょう。",
-    sourceSection: "ベンチプレス / 開始姿勢",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "bp_press_wait_013",
-    category: "bench",
-    difficulty: "beginner",
-    question: "胸で止めた後、Press合図がなかなか出ないと感じた時に避けたいことは？",
-    choices: ["合図前に自分の判断で押し始める", "バーを静止させて合図を待つ", "呼吸と体幹を保つ"],
-    answerIndex: 0,
-    explanation: "Press合図前に押し始めると失敗判定の原因になります。練習でも長めの静止に慣れておくと、本番の待ちに対応しやすくなります。",
-    sourceSection: "ベンチプレス / 主審の合図",
-    sourceUrl: ruleSource.ipfUrl
-  },
-  {
-    id: "bp_rack_after_press_014",
-    category: "bench",
-    difficulty: "beginner",
-    question: "ベンチプレスで押し切った後、Rack合図前に避けたい動きは？",
-    choices: ["合図前にラックへ戻し始める", "肘を伸ばして静止する", "主審の声を待つ"],
-    answerIndex: 0,
-    explanation: "押し切ってもRack合図までは試技中です。最後の焦りでラックへ戻すと赤判定になり得るため、合図まで待つ癖を作りましょう。",
-    sourceSection: "ベンチプレス / 主審の合図",
-    sourceUrl: ruleSource.ipfUrl
-  },
-  {
-    id: "bp_red_review_015",
-    category: "bench",
-    difficulty: "beginner",
-    question: "ベンチプレスで赤判定が出た時、次に確認したい項目として有効なのは？",
-    choices: ["静止、コール、尻浮き、バーの下がりを確認する", "重量だけを上げる", "動画を見ずに感覚だけで判断する"],
-    answerIndex: 0,
-    explanation: "ベンチの赤判定は複数の原因が考えられます。Press待ち、尻の接地、押し上げ中の下がり、Rack合図などを分けて振り返ると修正しやすいです。",
-    sourceSection: "ベンチプレス / 失敗判定",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "dl_full_lockout_011",
-    category: "deadlift",
-    difficulty: "beginner",
-    question: "デッドリフトのフィニッシュでDown合図をもらいやすい状態は？",
-    choices: ["膝と股関節を伸ばし、肩を返して直立し静止する", "膝が少し曲がったまま止まる", "バーを太ももに乗せて休む"],
-    answerIndex: 0,
-    explanation: "Down合図は引き切った姿勢が確認されてから出ます。膝・股関節・肩の位置を整理し、最後に静止する練習をしておきましょう。",
-    sourceSection: "デッドリフト / 試技動作",
-    sourceUrl: ruleSource.ipfUrl
-  },
-  {
-    id: "dl_no_start_command_012",
-    category: "deadlift",
-    difficulty: "beginner",
-    question: "デッドリフトの開始について正しい説明はどれ？",
-    choices: ["開始合図はなく、制限時間内に自分のタイミングで引く", "Start合図を待ってから引く", "三審が全員手を上げてから引く"],
-    answerIndex: 0,
-    explanation: "デッドリフトはスクワットやベンチと違い、開始合図を待ちません。準備を整えたら、制限時間内に自分のタイミングで引き始めます。",
-    sourceSection: "デッドリフト / 試技動作",
-    sourceUrl: ruleSource.ipfUrl
-  },
-  {
-    id: "dl_down_control_013",
-    category: "deadlift",
-    difficulty: "beginner",
-    question: "Down合図後のバーの下ろし方として望ましいものは？",
-    choices: ["両手で保持したまま床までコントロールする", "合図が出た瞬間に手を離す", "膝上から落とす"],
-    answerIndex: 0,
-    explanation: "Down合図後もバーを保持してコントロールします。落とす癖は白判定だけでなく安全面でもリスクになるため、練習から整えましょう。",
-    sourceSection: "デッドリフト / 失敗判定",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "dl_shoulders_014",
-    category: "deadlift",
-    difficulty: "beginner",
-    question: "デッドリフトのフィニッシュで避けたいものは？",
-    choices: ["上体を反りすぎてバランスを崩す", "膝を伸ばして静止する", "Down合図を待つ"],
-    answerIndex: 0,
-    explanation: "フィニッシュでは直立して静止することが大切です。過度に反ってバランスを崩すより、膝・股関節を伸ばした安定したロックアウトを目指します。",
-    sourceSection: "デッドリフト / 試技動作",
-    sourceUrl: ruleSource.ipfUrl
-  },
-  {
-    id: "dl_grip_plan_015",
-    category: "deadlift",
-    difficulty: "beginner",
-    question: "大会に向けたデッドリフトの握り方で堅実なのは？",
-    choices: ["本番で使う握り方を早めに決めて練習する", "大会当日に初めてフックグリップを試す", "普段はストラップだけで練習する"],
-    answerIndex: 0,
-    explanation: "大会では使える補助具が限られます。フック、オルタネイト、ダブルオーバーなど、本番の握り方を早めに決めて練習しましょう。",
-    sourceSection: "デッドリフト / 服装・個人装備",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "meet_nomination_011",
-    category: "meet",
-    difficulty: "beginner",
-    question: "大会で次の重量を申請するとき、初心者が事前に決めておくと良いものは？",
-    choices: ["成功時・失敗時それぞれの候補重量", "第三試技だけの最高目標", "周りの歓声で決める"],
-    answerIndex: 0,
-    explanation: "試合中は時間が限られます。第一試技後、第二試技後の候補を成功時・失敗時で用意しておくと、冷静に申請しやすくなります。",
-    sourceSection: "大会進行 / 試技申請",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "meet_missed_opener_012",
-    category: "meet",
-    difficulty: "beginner",
-    question: "第一試技を落とした後、次の試技選択で優先したいことは？",
-    choices: ["記録を残すために白判定の可能性を高める", "必ず予定通り重量を上げる", "理由を確認せず同じ失敗を繰り返す"],
-    answerIndex: 0,
-    explanation: "第一試技を落とした時は、まず失敗理由を整理します。記録を残すことを優先し、同重量や修正可能な選択を検討します。",
-    sourceSection: "大会進行 / 試技選択",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "meet_weigh_to_warmup_013",
-    category: "meet",
-    difficulty: "beginner",
-    question: "検量後から試技開始までの準備として良いものは？",
-    choices: ["補給、ラック高、アップ順、装備を確認する", "何も食べずに直前まで寝る", "開始時刻を見ずに会場外へ出る"],
-    answerIndex: 0,
-    explanation: "検量後は補給とアップ準備の時間です。試技開始時刻、ラック高、アップ場の混み具合、装備の順番を確認しておくと落ち着けます。",
-    sourceSection: "検量 / 大会進行",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "meet_total_strategy_014",
-    category: "meet",
-    difficulty: "beginner",
-    question: "パワーリフティング大会でTotalを残すために重要なのは？",
-    choices: ["各種目で少なくとも1本は成功させる", "スクワットだけ成功すれば十分", "第三試技だけ成功すればよい"],
-    answerIndex: 0,
-    explanation: "Totalはスクワット・ベンチプレス・デッドリフトの成功重量の合計です。各種目でまず1本を取る試技戦略が土台になります。",
-    sourceSection: "大会進行 / 成績",
-    sourceUrl: ruleSource.ipfUrl
-  },
-  {
-    id: "meet_after_review_015",
-    category: "meet",
-    difficulty: "beginner",
-    question: "大会後レビューで次サイクルに活かしやすい記録はどれ？",
-    choices: ["9本の結果、赤判定理由、体感、アップの流れ", "成功した第三試技だけ", "SNSに載せる写真だけ"],
-    answerIndex: 0,
-    explanation: "大会は次サイクルの材料です。9本の成功・失敗、赤判定の理由、アップの流れ、疲労感を残すと次の計画に変換しやすくなります。",
-    sourceSection: "大会振り返り / 記録",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "gear_equipment_check_011",
-    category: "gear",
-    difficulty: "beginner",
-    question: "大会で使用するギアを新しく買った時、最初に確認したいことは？",
-    choices: ["大会要項・公認リスト・国内ルール上の使用可否", "見た目のかっこよさだけ", "SNSで誰かが使っているかだけ"],
-    answerIndex: 0,
-    explanation: "装備は団体や大会によって扱いが変わることがあります。購入前後に公式情報と大会要項を確認し、不明点は主催者へ確認しましょう。",
-    sourceSection: "服装・個人装備",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "gear_shoes_012",
-    category: "gear",
-    difficulty: "beginner",
-    question: "大会で使う靴について堅実な準備は？",
-    choices: ["普段から本番で使う靴に慣れておく", "当日新品を初めて履く", "滑りやすくても気にしない"],
-    answerIndex: 0,
-    explanation: "靴はスクワット・ベンチの踏ん張りやデッドリフトの安定に関わります。大会で使えるかを確認し、普段から同じ靴で練習しましょう。",
-    sourceSection: "服装・個人装備",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "gear_underwear_013",
-    category: "gear",
-    difficulty: "beginner",
-    question: "服装ルールで迷いやすい項目への対応として安全なのは？",
-    choices: ["下着・Tシャツ・ソックスまで大会要項とルールを確認する", "シングレットだけ確認すれば十分", "当日審判に見せれば必ず通る"],
-    answerIndex: 0,
-    explanation: "大会装備はシングレットだけではありません。Tシャツ、ソックス、下着、ベルト、リストラップなど、細かい部分も事前確認が安全です。",
-    sourceSection: "服装・個人装備",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "gear_liquid_chalk_014",
-    category: "gear",
-    difficulty: "beginner",
-    question: "液体チョークや滑り止めを使いたい時の最も安全な対応は？",
-    choices: ["大会要項・通達・運営指示で使用可否を確認する", "自分のジムで使えるなら必ず使える", "見えないように使えばよい"],
-    answerIndex: 0,
-    explanation: "チョーク類の扱いは大会や会場の運用で変わることがあります。使用予定がある場合は、事前に最新案内を確認しましょう。背徳感より公式確認です。",
-    sourceSection: "技術委員会通達 / チョーク類",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "gear_documents_015",
-    category: "gear",
-    difficulty: "beginner",
-    question: "大会当日の受付・検量前に確認したいものはどれ？",
-    choices: ["身分確認書類、選手登録、要項、装備、補給物", "バーベルの写真だけ", "会場についてから思い出す"],
-    answerIndex: 0,
-    explanation: "大会当日は受付、検量、コスチューム確認などで慌ただしくなります。必要書類や持ち物は前日までにまとめておきましょう。",
-    sourceSection: "検量 / 大会準備",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "manners_spotters_011",
-    category: "manners",
-    difficulty: "beginner",
-    question: "補助員・運営スタッフへの接し方として望ましいものは？",
-    choices: ["指示を聞き、必要な確認は短く丁寧に行う", "試技中に長く説明を求める", "自分の希望だけを強く押し通す"],
-    answerIndex: 0,
-    explanation: "大会は多くのスタッフで進行しています。必要な確認は大切ですが、タイミングと伝え方を整えると競技進行も自分の集中も守れます。",
-    sourceSection: "大会マナー / 運営協力",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "manners_warmup_timing_012",
-    category: "manners",
-    difficulty: "beginner",
-    question: "アップ場で自分の試技順が近い選手がいる時の配慮として良いものは？",
-    choices: ["ラックやプレートを譲り合い、声かけする", "自分の動画撮影を優先して通路をふさぐ", "使わないプレートを確保し続ける"],
-    answerIndex: 0,
-    explanation: "アップ場では試技順が近い選手ほど時間が限られます。声かけと譲り合いは、初出場でもできる大切な競技マナーです。",
-    sourceSection: "大会マナー / アップ場",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "manners_coach_area_013",
-    category: "manners",
-    difficulty: "beginner",
-    question: "セコンドや仲間に撮影・声かけを頼む時に気をつけたいことは？",
-    choices: ["大会ルールと進行を妨げない位置・方法にする", "平台の近くならどこでも自由", "他選手の視界を遮っても自分優先"],
-    answerIndex: 0,
-    explanation: "撮影や声かけは助けになりますが、進行・安全・他選手への配慮が前提です。大会ごとの指示に従いましょう。",
-    sourceSection: "大会マナー / 撮影・セコンド",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "manners_noise_014",
-    category: "manners",
-    difficulty: "beginner",
-    question: "他選手の試技中に意識したいことは？",
-    choices: ["試技やコールの妨げにならないよう配慮する", "主審の声が聞こえないほど騒ぐ", "平台前を横切る"],
-    answerIndex: 0,
-    explanation: "応援は大会の良さですが、選手がコールを聞ける環境も大切です。声援と配慮の両方を持てると、会場全体が良くなります。",
-    sourceSection: "大会マナー / 会場利用",
-    sourceUrl: ruleSource.jpaUrl
-  },
-  {
-    id: "manners_learn_from_red_015",
-    category: "manners",
-    difficulty: "beginner",
-    question: "赤判定を受けた後の競技者として良い姿勢は？",
-    choices: ["理由を学び、次の試技や次回大会に活かす", "判定に怒って会場の雰囲気を悪くする", "動画を消してなかったことにする"],
-    answerIndex: 0,
-    explanation: "赤判定は競技力を上げる教材にもなります。悔しさを課題に変えられる人ほど、次の白判定に近づきます。",
-    sourceSection: "大会マナー / 振り返り",
-    sourceUrl: ruleSource.jpaUrl
   }
-
 ].map((question) => ({
   ...question,
   sourceLabel: ruleSource.label,
@@ -1379,7 +1028,7 @@ const defaultState = {
   currentAthleteId: "me",
   guideMode: true,
   startAction: "plan",
-  collapsed: { welcome: true, profile: true, cycle: false, facilities: true, meetNote: true, quiz: false },
+  collapsed: { welcome: true, profile: true, buddyMethod: true, cycle: false, facilities: true, meetNote: true, quiz: false },
   quiz: {
     view: "top",
     category: "",
@@ -1475,6 +1124,9 @@ const els = {
   backupFileInput: document.querySelector("#backupFileInput"),
   dataStatus: document.querySelector("#dataStatus"),
   guideModeBtn: document.querySelector("#guideModeBtn"),
+  buddyMethodCollapseBtn: document.querySelector("#buddyMethodCollapseBtn"),
+  buddyMethodPanelContent: document.querySelector("#buddyMethodPanelContent"),
+  buddyMethodSummary: document.querySelector("#buddyMethodSummary"),
   cycleCollapseBtn: document.querySelector("#cycleCollapseBtn"),
   cyclePanelContent: document.querySelector("#cyclePanelContent"),
   cycleSummary: document.querySelector("#cycleSummary"),
@@ -1561,7 +1213,7 @@ function loadState() {
 function migrateState(rawState) {
   const migrated = rawState;
   migrated.guideMode = typeof migrated.guideMode === "boolean" ? migrated.guideMode : true;
-  migrated.startAction = ["log", "plan", "max", "meet"].includes(migrated.startAction) ? migrated.startAction : "plan";
+  migrated.startAction = ["log", "plan", "meet"].includes(migrated.startAction) ? migrated.startAction : "plan";
   migrated.collapsed = {
     ...defaultState.collapsed,
     ...(migrated.collapsed || {})
@@ -1736,6 +1388,7 @@ function renderCollapseState(athlete = currentAthlete(), cycle = normalizedCycle
   state.collapsed = { ...defaultState.collapsed, ...(state.collapsed || {}) };
   applyCollapse("profile", els.profilePanelContent, els.profileCollapseBtn, "プロフィール");
   applyCollapse("welcome", els.welcomePanelContent, els.welcomeCollapseBtn, "はじめてガイド");
+  applyCollapse("buddyMethod", els.buddyMethodPanelContent, els.buddyMethodCollapseBtn, "Buddyメソッドとは？");
   applyCollapse("cycle", els.cyclePanelContent, els.cycleCollapseBtn, "PRサイクル設計");
   applyCollapse("facilities", els.facilityGrid, els.facilityCollapseBtn, "設備依存種目");
   applyCollapse("meetNote", els.meetNotePanelContent, els.meetNoteCollapseBtn, "大会ノート");
@@ -1784,8 +1437,12 @@ function renderCollapseSummaries(athlete, cycle) {
     els.quizSummary.textContent = `進捗 ${attempted}/${ruleQuestions.length}問 / 正解率 ${rate}% / 復習 ${wrong}問`;
   }
   if (els.welcomeSummary) {
-    const guideLabels = { plan: "PRサイクル設計", max: "現在地とBIG3バランス", meet: "大会準備と白判定", log: "プラン外の自主トレ" };
+    const guideLabels = { plan: "MAX更新へのPRサイクル", log: "今日のトレーニング記録", meet: "大会準備と白判定" };
     els.welcomeSummary.textContent = `目的別ヘルプ: ${guideLabels[state.startAction] || guideLabels.plan}`;
+  }
+  if (els.buddyMethodSummary) {
+    const level = cycle.buddyLevel === "level2" ? "Lv2 実戦寄り" : "Lv1 標準";
+    els.buddyMethodSummary.textContent = `現在の設定: ${level} / 現在地・RPE・疲労管理を学びながらPRへ進む`;
   }
 }
 
@@ -1890,22 +1547,12 @@ function meetAttemptRowMarkup(lift, attempt) {
       <select class="meet-attempt-result" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 結果">
         ${optionMarkup(meetAttemptResults, "pass")}
       </select>
-      <details class="meet-attempt-detail">
-        <summary>詳細</summary>
-        <label>
-          赤判定
-          <select class="meet-attempt-red" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 赤判定理由">
-            ${optionMarkup(meetRedReasonOptions[lift.id] || meetRedReasonOptions.squat, "none")}
-          </select>
-        </label>
-        <p class="meet-red-description">${escapeHtml(meetRedDescription(lift.id, "none"))}</p>
-        <label>
-          きつかった位置
-          <select class="meet-attempt-sticking" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 きつかった位置">
-            ${optionMarkup(meetStickingPoints, "none")}
-          </select>
-        </label>
-      </details>
+      <select class="meet-attempt-red" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 赤判定理由">
+        ${optionMarkup(meetRedReasonOptions[lift.id] || meetRedReasonOptions.squat, "none")}
+      </select>
+      <select class="meet-attempt-sticking" aria-label="${escapeHtml(lift.label)} 第${attempt}試技 きつかった位置">
+        ${optionMarkup(meetStickingPoints, "none")}
+      </select>
     </div>
   `;
 }
@@ -1918,20 +1565,6 @@ function optionMarkup(options, selectedValue = "") {
 
 function meetRedReasonLabel(lift, reason) {
   return (meetRedReasonOptions[lift] || {})[reason] || meetRedReasons[reason] || reason || "";
-}
-
-function meetRedDescription(lift, reason) {
-  return (meetRedReasonDescriptions[lift] || meetRedReasonDescriptions.squat || {})[reason] || meetRedReasonLabel(lift, reason);
-}
-
-function updateMeetAttemptDetail(row) {
-  const resultSelect = row?.querySelector?.(".meet-attempt-result");
-  const redSelect = row?.querySelector?.(".meet-attempt-red");
-  const details = row?.querySelector?.(".meet-attempt-detail");
-  const description = row?.querySelector?.(".meet-red-description");
-  if (!resultSelect || !redSelect || !details) return;
-  if (description) description.textContent = meetRedDescription(row.dataset.lift, redSelect.value);
-  if (resultSelect.value === "fail" || redSelect.value !== "none") details.open = true;
 }
 
 function collectMeetAttempts() {
@@ -2478,7 +2111,8 @@ function renderPlan() {
   const phase = cyclePhase(cycle.week, cycle.length, cycle.programMethod);
   const levelLabel = cycle.programMethod === "platform" ? ` / ${cycle.buddyLevel === "level2" ? "Buddy Lv2" : "Buddy Lv1"}` : "";
   els.cyclePhaseTitle.textContent = `${cycle.length}週中 ${cycle.week}週目 / ${phase.name}${levelLabel}`;
-  els.cyclePhaseNote.textContent = guideEnabled() ? `${phase.note} ${programMethodInfo(cycle).note}` : "";
+  const purpose = phasePurpose(phase, cycle);
+  els.cyclePhaseNote.textContent = guideEnabled() ? `この週の目的: ${purpose} ${phase.note} ${programMethodInfo(cycle).note}` : "";
   renderRpeCoach(cycle, phase);
   renderProjections(cycle);
 
@@ -2489,7 +2123,8 @@ function renderPlan() {
   }
 
   const insight = planInsight(cycle);
-  els.planList.innerHTML = `${insight}${weeklyTemplate(cycle).map((day, index) => {
+  const learningCard = weekLearningCard(cycle, phase);
+  els.planList.innerHTML = `${learningCard}${insight}${weeklyTemplate(cycle).map((day, index) => {
     const mainItems = day.items.filter((item) => item.lift || item.kind === "accessory").slice(0, 3).map((item) => item.name).join(" / ");
     return `
       <details class="day-card plan-day" ${index === 0 ? "open" : ""}>
@@ -2533,6 +2168,33 @@ function renderRpeCoach(cycle, phase) {
       <span><strong>RPE 8</strong> RIR 2目安</span>
       <span><strong>RPE 9</strong> RIR 1目安</span>
     </div>
+  `;
+}
+
+function phasePurpose(phase, cycle = normalizedCycle()) {
+  const name = phase?.name || "";
+  if (name.includes("蓄積")) return "フォーム再現性・練習量・RPE感覚を作る。";
+  if (name.includes("現在地")) return "限界MAXではなく、後半サイクルの設定材料を確認する。";
+  if (name.includes("強化")) return "競技重量に近い練習を増やし、成功率を保ちながら重さへつなげる。";
+  if (name.includes("ピーキング")) return "強さを作るより、強さを発揮する準備をする。";
+  if (name.includes("MAX") || name.includes("PR") || cycle.week === cycle.length) return "大会形式で成功試技を積み上げる。";
+  if (cycle.recoveryMode || name.includes("デロード") || name.includes("休養")) return "疲労を抜き、現在地チェックや次週の精度を上げる。";
+  return "今週の練習目的を確認し、予定RPEを守って次週へつなげる。";
+}
+
+function weekLearningCard(cycle, phase) {
+  if (!guideEnabled()) return "";
+  const isPlatform = cycle.programMethod === "platform";
+  const whiteNine = isPlatform && (cycle.week === cycle.length || (phase.name || "").includes("MAX"))
+    ? `<p class="white-nine-note"><strong>白9本:</strong> 第一を確実に、第二でトータルを作り、第三で挑戦する。成功試技を積み上げることも競技力です。</p>`
+    : "";
+  return `
+    <article class="plan-card week-learning-card">
+      <span class="recommended-badge">この週の目的</span>
+      <h2>${escapeHtml(phase.name)}</h2>
+      <p>${escapeHtml(phasePurpose(phase, cycle))}</p>
+      ${whiteNine}
+    </article>
   `;
 }
 
@@ -3116,6 +2778,7 @@ function findPreviousFeedback(cycle, item) {
 }
 
 function previousAdjustmentMessage(feedback) {
+  if (feedback.status === "deload") return "デロード候補です。次週へ進む前に重量上限を守る回復週を挟む判断も検討してください。";
   if (feedback.status === "heavy") return "今週は -2.5〜5kg やバックオフ減を検討し、予定RPEを守ることを優先してください。";
   if (feedback.status === "warn") return "今週は -2.5kg を検討してください。重量を下げる判断もプログラム成功の一部です。";
   if (feedback.status === "light") return "軽く感じていたので +2.5kg、最大でも +5kg までなら検討できます。追いすぎず予定RPE内で止めましょう。";
@@ -3127,11 +2790,14 @@ function recoverySignalForNextWeek(cycle) {
   const currentWeek = cycle.week;
   const nextWeek = Math.min(cycle.week + 1, cycle.length);
   const currentEntries = planFeedbackEntriesForWeek(cycle, currentWeek);
-  const heavyEntries = currentEntries.filter((entry) => rpeDiff(entry) >= 1.5);
+  const heavyEntries = currentEntries.filter((entry) => rpeDiff(entry) >= 2);
+  const warningEntries = currentEntries.filter((entry) => rpeDiff(entry) >= 1.5);
   const heavyLifts = [...new Set(heavyEntries.map((entry) => entry.lift || entry.exerciseName).filter(Boolean))];
   const reasons = [];
-  if (heavyLifts.length >= 2 || heavyEntries.length >= 2) {
-    reasons.push(`W${currentWeek}で予定よりRPE +1.5以上の実績が${heavyEntries.length}件あります。`);
+  if (heavyLifts.length >= 1 || heavyEntries.length >= 1) {
+    reasons.push(`W${currentWeek}で予定よりRPE +2.0以上の実績があります。`);
+  } else if (warningEntries.length >= 2) {
+    reasons.push(`W${currentWeek}で予定よりRPE +1.5以上の実績が${warningEntries.length}件あります。`);
   }
   const previousEntries = planFeedbackEntriesForWeek(cycle, currentWeek - 1);
   const consecutive = heavyTrendLifts(currentEntries, previousEntries);
@@ -4188,25 +3854,20 @@ function renderDataStatus() {
 function renderStartGuide() {
   if (!els.startGuide) return;
   const guides = {
-    plan: {
-      title: "PRサイクルを組む",
-      view: "plan",
-      steps: ["現在1RMを入力", "週数と頻度を選ぶ", "PRサイクルを作成", "プランに沿って積む"]
+    log: {
+      title: "今日の記録から始める",
+      view: "log",
+      steps: ["種目を選ぶ", "重量・回数・RPEを入力", "e1RMを確認", "Buddyコメントを見る"]
     },
-    max: {
-      title: "現在地を知る",
-      view: "analysis",
-      steps: ["e1RMを確認", "BIG3バランスを見る", "狙うPRを決める", "次サイクルへ反映"]
+    plan: {
+      title: "MAX更新を狙う",
+      view: "plan",
+      steps: ["現在の1RMを入力", "週数と頻度を選ぶ", "PRサイクルを作成", "実施後に記録を残す"]
     },
     meet: {
-      title: "大会に向けて学ぶ",
+      title: "大会に向けて準備する",
       view: "knowledge",
-      steps: ["公式ルールリンクを確認", "白判定クイズで基本ルールを確認", "大会後は9本をレビュー", "次サイクルの課題へつなぐ"]
-    },
-    log: {
-      title: "プラン外の自主トレを残す",
-      view: "log",
-      steps: ["補助種目を選ぶ", "重量・回数・RPEを入力", "体感メモを残す", "プランへの影響を確認"]
+      steps: ["公式ルールリンクを確認", "白判定クイズで基本ルールを確認", "大会後は大会ノートに9本を残す", "次サイクルの課題へつなぐ"]
     }
   };
   const active = guides[state.startAction] || guides.plan;
@@ -4272,12 +3933,6 @@ document.addEventListener("click", (event) => {
     renderMeetReviewPreview(null);
     renderCollapseSummaries(athlete, normalizedCycle());
   }
-});
-
-els.meetAttemptGrid?.addEventListener("change", (event) => {
-  const row = event.target.closest(".meet-attempt-row");
-  if (!row) return;
-  updateMeetAttemptDetail(row);
 });
 
 els.meetNoteForm?.addEventListener("submit", (event) => {
@@ -4403,8 +4058,9 @@ function rpeAdjustmentFeedback(plannedRpe, actualRpe) {
     return { status: "ok", message: "記録しました。次回もフォームと余力をメモしてRPE感覚を育てましょう。" };
   }
   const diff = actualRpe - plannedRpe;
-  if (diff >= 1.5) return { status: "heavy", message: `予定よりRPE +${diff.toFixed(1)}。今日は重量を下げて予定RPEを守る方がプログラムとして成功です。次回は -2.5〜5kg、バックオフも1セット減を検討してください。` };
-  if (diff >= 0.75) return { status: "warn", message: `予定よりRPE +${diff.toFixed(1)}。次回は -2.5kg を検討し、重量より予定RPEを守る感覚を優先しましょう。` };
+  if (diff >= 2) return { status: "deload", message: `デロード候補: 予定よりRPE +${diff.toFixed(1)}。次週へ進む前に回復週や上限重量の設定を検討してください。` };
+  if (diff >= 1.5) return { status: "heavy", message: `警告: 予定よりRPE +${diff.toFixed(1)}。今日は重量を下げて予定RPEを守る方がプログラムとして成功です。次回は -2.5〜5kg、バックオフ減を検討してください。` };
+  if (diff >= 1) return { status: "warn", message: `注意: 予定よりRPE +${diff.toFixed(1)}。次回は -2.5kg を検討し、重量より予定RPEを守る感覚を優先しましょう。` };
   if (diff <= -1.5) return { status: "light", message: `予定よりRPE ${diff.toFixed(1)}。余力がありますが追いすぎず、次セットやバックオフを +2.5〜5kg まで。予定RPEを超えない範囲で止めましょう。` };
   if (diff <= -0.75) return { status: "light", message: `予定よりRPE ${diff.toFixed(1)}。少し軽めです。次回は +2.5kg までを候補にし、フォーム精度を優先しましょう。` };
   return { status: "ok", message: `予定通り。RPE差 ${diff >= 0 ? "+" : ""}${diff.toFixed(1)}。この感覚を次回の基準にしましょう。` };
@@ -4570,6 +4226,7 @@ function handleRecoveryAction(action) {
 
 els.profileCollapseBtn.addEventListener("click", () => toggleCollapsed("profile"));
 els.welcomeCollapseBtn?.addEventListener("click", () => toggleCollapsed("welcome"));
+els.buddyMethodCollapseBtn?.addEventListener("click", () => toggleCollapsed("buddyMethod"));
 els.cycleCollapseBtn.addEventListener("click", () => toggleCollapsed("cycle"));
 els.facilityCollapseBtn.addEventListener("click", () => toggleCollapsed("facilities"));
 els.meetNoteCollapseBtn?.addEventListener("click", () => toggleCollapsed("meetNote"));
