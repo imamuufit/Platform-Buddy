@@ -2061,13 +2061,14 @@ function historyLogMarkup(log) {
     const name = log.exerciseName || exerciseMeta(log.exerciseId).name;
     const badge = log.badge || exerciseMeta(log.exerciseId).badge;
     const rpe = log.rpe ? ` RPE ${log.rpe}` : "";
+    const confidence = log.rpeConfidence ? ` / ${rpeConfidenceLabel(log.rpeConfidence)}` : "";
     const setDetails = setDetailsMarkup(log);
     return `
       <article class="history-item">
         <div>
           <span class="lift-badge ${logSource(log) === "plan" ? "plan-source" : ""}">${logSource(log) === "plan" ? "PLAN" : badge}</span>
           <h2>${escapeHtml(name)} ${log.weight}kg x ${log.reps} x ${log.sets}</h2>
-          <p class="history-meta">${log.date}${rpe} / e1RM ${e1rm(log.weight, log.reps)}kg</p>
+          <p class="history-meta">${log.date}${rpe}${confidence} / e1RM ${e1rm(log.weight, log.reps)}kg</p>
           ${setDetails}
           <p class="history-meta history-note">${log.note ? escapeHtml(log.note) : "メモなし"}</p>
         </div>
@@ -2153,15 +2154,15 @@ function renderRpeCoach(cycle, phase) {
   const guide = cycle.programMethod === "platform" && cycle.buddyLevel === "level2"
     ? "Lv2はRPEと%1RMを併用します。表示重量は刺激の下限と上限を守るための目安です。@8を超える日は重量を下げ、軽くても+2.5kg程度に留めて週全体の波を崩さないでください。"
     : isAccumulation
-    ? "蓄積期はRPEを覚える練習期間です。RPEは限界への近さ、RIRは残り回数です。表示重量は提案なので、予定RPEより重いなら -2.5〜5kg、軽すぎるなら +2.5〜5kgで調整してください。"
-    : "表示重量は提案です。予定RPEを超えそうなら重量を下げ、余裕がありすぎる時だけ小さく上げます。RIR目安はRPE理解の補助として使います。";
+    ? "蓄積期はRPEを覚える練習期間です。RIRは単なる残り回数ではなく、競技フォームを保ったまま残せる回数として見ます。予定RPEより重いなら -2.5〜5kg、軽すぎるなら +2.5〜5kgで調整してください。"
+    : "表示重量は提案です。予定RPEを超えそうなら重量を下げ、余裕がありすぎる時だけ小さく上げます。RIRはフォーム再現性を含めた余力として使います。";
   els.rpeCoachCard.innerHTML = `
     <div>
       <p class="eyebrow">RPE Coach</p>
-      <h3>RPEはきつさ、RIRは残り回数</h3>
+      <h3>RPEは育てる感覚、RIRは競技フォーム込みの余力</h3>
     </div>
     <p>${guide}</p>
-    <p class="rpe-principle">RPEはアプリが決める数字ではなく、自分の身体感覚を観察して育てるものです。補正は命令ではなく判断材料です。迷った日は重量よりフォームと安全を優先してください。</p>
+    <p class="rpe-principle">RPEは最初から正確に当てる数字ではなく、自分の身体感覚を観察して育てるものです。RIRは「競技フォームを保ったまま、あと何回できそうか」で見ます。深さ、止め、ロックアウト、バー軌道が崩れる余力は、RIRに多く数えません。</p>
     <div class="rpe-scale">
       <span><strong>RPE 6</strong> RIR 4目安</span>
       <span><strong>RPE 7</strong> RIR 3目安</span>
@@ -2702,6 +2703,7 @@ function actualInputBlock(item, cycle, planText, detail, dayIndex, itemIndex) {
   const saved = currentAthlete().rpeFeedback?.[key];
   const previous = previousFeedbackMarkup(cycle, item);
   const feedback = saved ? feedbackMarkup(saved) : "";
+  const confidence = saved?.rpeConfidence || "learning";
   const rows = saved?.setDetails?.length ? saved.setDetails : [{ weight: saved?.weight ?? target.weight ?? "", reps: saved?.reps ?? target.reps ?? "", rpe: saved?.rpe ?? "" }];
   return `
     <div class="actual-box" data-plan-key="${escapeHtml(key)}" data-lift="${escapeHtml(item.lift || item.exerciseId || "custom")}" data-source="plan" data-exercise="${escapeHtml(item.name)}" data-planned-rpe="${target.rpe || ""}" data-plan-text="${escapeHtml(planText)}">
@@ -2713,6 +2715,15 @@ function actualInputBlock(item, cycle, planText, detail, dayIndex, itemIndex) {
       <div class="actual-set-list">
         ${rows.map((row, index) => actualSetRowMarkup(row, index)).join("")}
       </div>
+      <label class="rpe-confidence">
+        <span>RPE自信度</span>
+        <select class="actual-rpe-confidence">
+          <option value="solid"${confidence === "solid" ? " selected" : ""}>自信あり</option>
+          <option value="unsure"${confidence === "unsure" ? " selected" : ""}>少し迷う</option>
+          <option value="learning"${confidence === "learning" ? " selected" : ""}>感覚練習中</option>
+        </select>
+      </label>
+      ${guideEnabled() ? `<p class="rpe-confidence-note">RPEは信じ込むものではなく育てる感覚です。迷う日は動画、フォーム再現性、バー速度も合わせて判断しましょう。</p>` : ""}
       <div class="actual-actions">
         <button class="text-button compact actual-add-set" type="button">セット追加</button>
         <button class="text-button compact actual-save" type="button">記録</button>
@@ -2749,7 +2760,14 @@ function planFeedbackKey(cycle, dayIndex, itemIndex, lift, name) {
 
 function feedbackMarkup(feedback) {
   if (!guideEnabled() && ["ok", "light"].includes(feedback.status)) return "";
-  return `<p class="rpe-feedback ${feedback.status}">${escapeHtml(feedback.message)}</p>`;
+  const confidence = feedback.rpeConfidence ? `<span>${escapeHtml(rpeConfidenceLabel(feedback.rpeConfidence))}</span>` : "";
+  return `<p class="rpe-feedback ${feedback.status}">${confidence}${escapeHtml(feedback.message)}</p>`;
+}
+
+function rpeConfidenceLabel(value) {
+  if (value === "solid") return "RPE自信あり";
+  if (value === "unsure") return "RPE少し迷う";
+  return "RPE感覚練習中";
 }
 
 function previousFeedbackMarkup(cycle, item) {
@@ -2759,11 +2777,12 @@ function previousFeedbackMarkup(cycle, item) {
   if (!guideEnabled() && ["ok", "light"].includes(previous.status)) return "";
   const planned = previous.plannedRpe ? `@${previous.plannedRpe}` : "RPE未設定";
   const actual = previous.rpe ? `@${previous.rpe}` : "RPE未入力";
+  const confidence = previous.rpeConfidence ? ` / ${rpeConfidenceLabel(previous.rpeConfidence)}` : "";
   const adjustment = previousAdjustmentMessage(previous);
   return `
     <div class="previous-rpe ${previous.status}">
       <strong>前回メモ</strong>
-      <span>前回は ${planned} 予定が ${actual} でした。${adjustment}</span>
+      <span>前回は ${planned} 予定が ${actual}${confidence} でした。${adjustment}</span>
     </div>
   `;
 }
@@ -4017,7 +4036,8 @@ els.planList.addEventListener("click", (event) => {
   const lift = box.dataset.lift;
   const exerciseName = box.dataset.exercise;
   const plannedRpe = Number(box.dataset.plannedRpe || 0);
-  const feedback = plannedRpe && rpe ? rpeAdjustmentFeedback(plannedRpe, rpe) : { status: "ok", message: "実績を保存しました。次回の重量判断に使えます。" };
+  const rpeConfidence = box.querySelector(".actual-rpe-confidence")?.value || "learning";
+  const feedback = plannedRpe && rpe ? rpeAdjustmentFeedback(plannedRpe, rpe, rpeConfidence) : { status: "ok", message: "実績を保存しました。次回の重量判断に使えます。" };
   athlete.rpeFeedback = athlete.rpeFeedback || {};
   athlete.rpeFeedback[box.dataset.planKey] = {
     weight,
@@ -4025,6 +4045,7 @@ els.planList.addEventListener("click", (event) => {
     rpe,
     setDetails,
     plannedRpe,
+    rpeConfidence,
     lift,
     exerciseName,
     status: feedback.status,
@@ -4047,23 +4068,29 @@ els.planList.addEventListener("click", (event) => {
     source: "plan",
     planKey: box.dataset.planKey,
     planText: box.dataset.planText || "",
+    rpeConfidence,
     note: plannedRpe ? `予定RPE ${plannedRpe} / ${feedback.message}` : feedback.message
   });
   saveState();
   render();
 });
 
-function rpeAdjustmentFeedback(plannedRpe, actualRpe) {
+function rpeAdjustmentFeedback(plannedRpe, actualRpe, confidence = "learning") {
   if (!plannedRpe) {
     return { status: "ok", message: "記録しました。次回もフォームと余力をメモしてRPE感覚を育てましょう。" };
   }
   const diff = actualRpe - plannedRpe;
-  if (diff >= 2) return { status: "deload", message: `デロード候補: 予定よりRPE +${diff.toFixed(1)}。次週へ進む前に回復週や上限重量の設定を検討してください。` };
-  if (diff >= 1.5) return { status: "heavy", message: `警告: 予定よりRPE +${diff.toFixed(1)}。今日は重量を下げて予定RPEを守る方がプログラムとして成功です。次回は -2.5〜5kg、バックオフ減を検討してください。` };
-  if (diff >= 1) return { status: "warn", message: `注意: 予定よりRPE +${diff.toFixed(1)}。次回は -2.5kg を検討し、重量より予定RPEを守る感覚を優先しましょう。` };
-  if (diff <= -1.5) return { status: "light", message: `予定よりRPE ${diff.toFixed(1)}。余力がありますが追いすぎず、次セットやバックオフを +2.5〜5kg まで。予定RPEを超えない範囲で止めましょう。` };
-  if (diff <= -0.75) return { status: "light", message: `予定よりRPE ${diff.toFixed(1)}。少し軽めです。次回は +2.5kg までを候補にし、フォーム精度を優先しましょう。` };
-  return { status: "ok", message: `予定通り。RPE差 ${diff >= 0 ? "+" : ""}${diff.toFixed(1)}。この感覚を次回の基準にしましょう。` };
+  const learningNote = confidence === "solid"
+    ? ""
+    : confidence === "unsure"
+    ? " ただしRPEに迷いがあるため、動画やフォーム再現性も合わせて確認しましょう。"
+    : " RPE感覚は練習中です。重量変更を強く決めつけず、深さ・止め・ロックアウト・バー速度も観察しましょう。";
+  if (diff >= 2) return { status: "deload", rpeConfidence: confidence, message: `デロード候補: 予定よりRPE +${diff.toFixed(1)}。次週へ進む前に回復週や上限重量の設定を検討してください。${learningNote}` };
+  if (diff >= 1.5) return { status: "heavy", rpeConfidence: confidence, message: `警告: 予定よりRPE +${diff.toFixed(1)}。今日は重量を下げて予定RPEを守る方がプログラムとして成功です。次回は -2.5〜5kg、バックオフ減を検討してください。${learningNote}` };
+  if (diff >= 1) return { status: "warn", rpeConfidence: confidence, message: `注意: 予定よりRPE +${diff.toFixed(1)}。次回は -2.5kg を検討し、重量より予定RPEを守る感覚を優先しましょう。${learningNote}` };
+  if (diff <= -1.5) return { status: "light", rpeConfidence: confidence, message: `予定よりRPE ${diff.toFixed(1)}。余力がありますが追いすぎず、次セットやバックオフを +2.5〜5kg まで。予定RPEを超えない範囲で止めましょう。${learningNote}` };
+  if (diff <= -0.75) return { status: "light", rpeConfidence: confidence, message: `予定よりRPE ${diff.toFixed(1)}。少し軽めです。次回は +2.5kg までを候補にし、フォーム精度を優先しましょう。${learningNote}` };
+  return { status: "ok", rpeConfidence: confidence, message: `予定通り。RPE差 ${diff >= 0 ? "+" : ""}${diff.toFixed(1)}。この感覚を次回の基準にしましょう。${learningNote}` };
 }
 
 els.logForm.addEventListener("submit", (event) => {
@@ -4318,7 +4345,7 @@ els.chartLiftSelect.addEventListener("change", drawChart);
 
 function logRows(athlete = currentAthlete()) {
   return [
-    ["選手", "性別", "階級", "日付", "カテゴリ", "種目", "重量", "回数", "セット", "RPE", "セット詳細", "e1RM", "メモ"],
+    ["選手", "性別", "階級", "日付", "カテゴリ", "種目", "重量", "回数", "セット", "RPE", "RPE自信度", "セット詳細", "e1RM", "メモ"],
     ...athlete.logs.map((log) => [
       athlete.name,
       athlete.sex === "female" ? "女性" : "男性",
@@ -4330,6 +4357,7 @@ function logRows(athlete = currentAthlete()) {
       log.reps,
       log.sets,
       log.rpe,
+      log.rpeConfidence ? rpeConfidenceLabel(log.rpeConfidence) : "",
       setDetailsText(log),
       e1rm(log.weight, log.reps),
       log.note

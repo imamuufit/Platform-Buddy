@@ -1372,6 +1372,32 @@ canvas {
   gap: 8px;
 }
 
+.rpe-confidence {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffefa;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.rpe-confidence select {
+  min-height: 36px;
+  padding: 7px 9px;
+}
+
+.rpe-confidence-note {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
 .actual-grid label {
   font-size: 0.72rem;
 }
@@ -1385,6 +1411,16 @@ canvas {
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 0.8rem;
+}
+
+.rpe-feedback span {
+  display: inline-block;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  padding: 2px 7px;
+  font-size: 0.7rem;
+  font-weight: 900;
 }
 
 .rpe-feedback.ok {
@@ -2183,6 +2219,10 @@ dialog::backdrop {
   .actual-set-row {
     grid-template-columns: 34px repeat(3, minmax(0, 1fr)) 34px;
     gap: 6px;
+  }
+
+  .rpe-confidence {
+    grid-template-columns: 1fr;
   }
 
   .meet-attempt-row {
